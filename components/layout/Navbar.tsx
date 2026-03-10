@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AnnouncementBar from "./AnnouncementBar";
+import CartDrawer from "@/components/cart/CartDrawer";
 import { useCartStore, selectItemCount } from "@/store/useCartStore";
 import { useWishlistStore, selectWishlistCount } from "@/store/useWishlistStore";
 
@@ -32,6 +33,8 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
   const cartCount = useCartStore(selectItemCount);
   const wishlistCount = useWishlistStore(selectWishlistCount);
@@ -175,10 +178,10 @@ export default function Navbar() {
               <User size={20} />
             </Link>
 
-            <Link
-              href="/cart"
+            <button
+              onClick={() => setCartDrawerOpen(true)}
               className="p-1.5 hover:opacity-60 transition-opacity relative"
-              aria-label="Carrito"
+              aria-label="Abrir carrito"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
@@ -186,12 +189,15 @@ export default function Navbar() {
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </nav>
       </header>
 
-      {/* Mobile drawer */}
+      {/* Cart drawer */}
+      <CartDrawer open={cartDrawerOpen} onClose={() => setCartDrawerOpen(false)} />
+
+      {/* Mobile nav drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-[60] flex">
           {/* Overlay */}
