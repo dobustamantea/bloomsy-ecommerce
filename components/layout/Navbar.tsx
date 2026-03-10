@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AnnouncementBar from "./AnnouncementBar";
+import { useCartStore, selectItemCount } from "@/store/useCartStore";
+import { useWishlistStore, selectWishlistCount } from "@/store/useWishlistStore";
 
 const CATEGORIES = [
   { label: "Poleras", href: "/categoria/poleras" },
@@ -30,6 +32,9 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+
+  const cartCount = useCartStore(selectItemCount);
+  const wishlistCount = useWishlistStore(selectWishlistCount);
 
   // Sticky shadow on scroll
   useEffect(() => {
@@ -151,10 +156,15 @@ export default function Navbar() {
 
             <Link
               href="/wishlist"
-              className="hidden sm:flex p-1.5 hover:opacity-60 transition-opacity"
+              className="hidden sm:flex p-1.5 hover:opacity-60 transition-opacity relative"
               aria-label="Lista de deseos"
             >
               <Heart size={20} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-bloomsy-black text-bloomsy-cream text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  {wishlistCount > 9 ? "9+" : wishlistCount}
+                </span>
+              )}
             </Link>
 
             <Link
@@ -171,11 +181,11 @@ export default function Navbar() {
               aria-label="Carrito"
             >
               <ShoppingBag size={20} />
-              {/* Cart badge — managed by Zustand store later */}
-              <span
-                id="cart-badge"
-                className="absolute -top-0.5 -right-0.5 bg-bloomsy-black text-bloomsy-cream text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center hidden"
-              />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-bloomsy-black text-bloomsy-cream text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </nav>
