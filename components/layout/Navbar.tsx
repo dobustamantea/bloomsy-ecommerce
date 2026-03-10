@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import AnnouncementBar from "./AnnouncementBar";
 import { useCartStore, selectItemCount } from "@/store/useCartStore";
 import { useWishlistStore, selectWishlistCount } from "@/store/useWishlistStore";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const CATEGORIES = [
   { label: "Poleras", href: "/categoria/poleras" },
@@ -29,6 +30,7 @@ const CATEGORIES = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
@@ -43,12 +45,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on route change (simple approach)
+  // Lock body scroll while any drawer is open
   useEffect(() => {
-    if (mobileOpen) document.body.style.overflow = "hidden";
+    if (mobileOpen || cartOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
-  }, [mobileOpen]);
+  }, [mobileOpen, cartOpen]);
 
   return (
     <>
@@ -175,10 +177,11 @@ export default function Navbar() {
               <User size={20} />
             </Link>
 
-            <Link
-              href="/cart"
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
               className="p-1.5 hover:opacity-60 transition-opacity relative"
-              aria-label="Carrito"
+              aria-label="Abrir carrito"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
@@ -186,7 +189,7 @@ export default function Navbar() {
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </nav>
       </header>
@@ -263,6 +266,8 @@ export default function Navbar() {
           </aside>
         </div>
       )}
+
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }
