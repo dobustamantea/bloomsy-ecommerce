@@ -3,6 +3,16 @@ import Link from "next/link";
 import { products } from "@/data/products";
 import type { ProductCategory } from "@/types";
 
+/* Fallback para categorías sin producto en data/products.ts */
+const CATEGORY_FALLBACK: Partial<Record<ProductCategory, string>> = {
+  faldas:
+    "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=600&q=80&fit=crop",
+  pantalones:
+    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80&fit=crop",
+  chalecos:
+    "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600&q=80&fit=crop",
+};
+
 const CATEGORY_CARDS: {
   value: ProductCategory;
   label: string;
@@ -20,20 +30,28 @@ const CATEGORY_CARDS: {
 
 export default function HomeCategories() {
   return (
-    <section className="bg-[#F0EDE0] py-18 md:py-24">
+    /*
+     * pt-16 mobile: separa el título del botón "VER TODO" de HomeFeatured
+     * pb-20 mobile: da aire antes del newsletter del footer
+     */
+    <section className="bg-[#F0EDE0] pt-16 pb-20 md:py-24">
       <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+
         {/* Header */}
-        <div className="text-center mb-10 md:mb-12">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="font-display text-[40px] md:text-[48px] font-light leading-tight">
             Explorar por categoría
           </h2>
         </div>
 
-        {/* 4-col grid on desktop, 2-col on mobile */}
+        {/* 2-col mobile / 4-col desktop */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {CATEGORY_CARDS.map(({ value, label, href }) => {
+            /* Usa imagen del producto si existe, si no el fallback de Unsplash */
             const image =
-              products.find((p) => p.category === value)?.images[0] ?? null;
+              products.find((p) => p.category === value)?.images[0] ??
+              CATEGORY_FALLBACK[value] ??
+              null;
 
             return (
               <Link
@@ -41,7 +59,6 @@ export default function HomeCategories() {
                 href={href}
                 className="group relative block aspect-[3/4] overflow-hidden bg-bloomsy-black"
               >
-                {/* Product image */}
                 {image && (
                   <Image
                     src={image}
@@ -52,10 +69,10 @@ export default function HomeCategories() {
                   />
                 )}
 
-                {/* Dark overlay — deepens on hover */}
+                {/* Overlay — se oscurece en hover */}
                 <div className="absolute inset-0 bg-black/25 group-hover:bg-black/45 transition-colors duration-400" />
 
-                {/* Category label */}
+                {/* Etiqueta de categoría */}
                 <div className="absolute inset-0 flex items-end justify-center pb-6 px-3">
                   <span className="font-display text-[22px] text-white font-light tracking-wide text-center leading-tight">
                     {label}
@@ -65,6 +82,7 @@ export default function HomeCategories() {
             );
           })}
         </div>
+
       </div>
     </section>
   );

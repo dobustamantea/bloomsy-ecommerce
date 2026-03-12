@@ -6,7 +6,7 @@ const featured = products.filter((p) => p.isFeatured).slice(0, 4);
 
 export default function HomeFeatured() {
   return (
-    <section className="bg-bloomsy-cream py-18 md:py-24">
+    <section className="bg-bloomsy-cream py-14 md:py-24">
       <div className="max-w-[1400px] mx-auto px-4 md:px-8">
         {/* Header */}
         <div className="text-center mb-10 md:mb-12">

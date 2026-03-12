@@ -8,7 +8,8 @@ export default function HomeHero() {
   return (
     <section className="flex flex-col md:grid md:grid-cols-2 md:h-[100svh]">
       {/* ── Text — mobile: bottom (order-2), desktop: left (order-1) ── */}
-      <div className="order-2 md:order-1 flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12 md:py-0">
+      {/* py-14 mobile garantiza que el texto no quede pegado a la imagen */}
+      <div className="order-2 md:order-1 flex flex-col justify-center px-8 md:px-14 lg:px-20 py-14 md:py-0">
         <p className="text-[11px] tracking-[0.35em] uppercase text-black/40 mb-7">
           Nueva Colección 2026
         </p>
