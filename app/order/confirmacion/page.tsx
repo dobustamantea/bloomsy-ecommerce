@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Tu pedido en Bloomsy fue procesado exitosamente.",
 };
 
-export default function ConfirmacionPage() {
-  return <ConfirmationClient />;
+interface Props {
+  searchParams: { order?: string };
+}
+
+export default function ConfirmacionPage({ searchParams }: Props) {
+  return <ConfirmationClient orderNumberFromUrl={searchParams.order} />;
 }

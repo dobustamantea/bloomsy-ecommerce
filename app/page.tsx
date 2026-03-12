@@ -3,6 +3,10 @@ import HomeHero from "@/components/home/HomeHero";
 import HomeValues from "@/components/home/HomeValues";
 import HomeFeatured from "@/components/home/HomeFeatured";
 import HomeCategories from "@/components/home/HomeCategories";
+import { getFeaturedProducts } from "@/lib/products";
+
+// Revalidate home every hour
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Bloomsy — High Modern Style",
@@ -17,12 +21,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featured = await getFeaturedProducts();
+
   return (
     <>
       <HomeHero />
       <HomeValues />
-      <HomeFeatured />
+      <HomeFeatured products={featured} />
       <HomeCategories />
       {/* Newsletter band lives in the global Footer (layout.tsx) */}
     </>

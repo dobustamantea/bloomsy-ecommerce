@@ -1,10 +1,13 @@
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
+import type { Product } from "@/types";
 
-const featured = products.filter((p) => p.isFeatured).slice(0, 4);
+interface Props {
+  /** Primeros 4 productos isFeatured, ya resueltos por el Server Component del home */
+  products: Product[];
+}
 
-export default function HomeFeatured() {
+export default function HomeFeatured({ products }: Props) {
   return (
     <section className="bg-bloomsy-cream py-14 md:py-24">
       <div className="max-w-[1400px] mx-auto px-4 md:px-8">
@@ -20,7 +23,7 @@ export default function HomeFeatured() {
 
         {/* 4-column product grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 mb-12">
-          {featured.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

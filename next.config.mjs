@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    // ESLint runs separately in CI; skip during `next build`
+    ignoreDuringBuilds: true,
+  },
   staticPageGenerationTimeout: 120,
   images: {
     remotePatterns: [
