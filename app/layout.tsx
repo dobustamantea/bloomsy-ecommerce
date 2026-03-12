@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
+import ComingSoonModal from "@/components/ComingSoonModal";
 import { STORE_CONFIG } from "@/config/site";
 
 const cormorant = Cormorant_Garamond({
@@ -61,6 +62,8 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        {/* Modal al final del body → z-[200], por encima de todo */}
+        {STORE_CONFIG.isComingSoon && <ComingSoonModal />}
       </body>
     </html>
   );
