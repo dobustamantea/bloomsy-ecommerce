@@ -3,6 +3,8 @@ import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import ComingSoonBanner from "@/components/ComingSoonBanner";
+import { STORE_CONFIG } from "@/config/site";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -55,6 +57,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${cormorant.variable} ${dmSans.variable}`}>
       <body className="min-h-screen flex flex-col bg-bloomsy-cream text-bloomsy-black">
+        {STORE_CONFIG.isComingSoon && <ComingSoonBanner />}
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
