@@ -1,22 +1,26 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { products } from "@/data/products";
+import { getProductBySlug, getAllProductSlugs } from "@/lib/products";
 import ProductGallery from "@/components/shop/ProductGallery";
 import ProductOptions from "@/components/shop/ProductOptions";
 import ProductAccordions from "@/components/shop/ProductAccordions";
 import ReviewSection from "@/components/shop/ReviewSection";
 import RelatedProducts from "@/components/shop/RelatedProducts";
 
+// Revalidate product pages every hour
+export const revalidate = 3600;
+
 interface ProductPageProps {
   params: { slug: string };
 }
 
 export async function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+  const slugs = await getAllProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = products.find((p) => p.slug === params.slug);
+  const product = await getProductBySlug(params.slug);
   if (!product) return {};
   return {
     title: product.name,
@@ -27,8 +31,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   };
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = products.find((p) => p.slug === params.slug);
+export default async function ProductPage({ params }: ProductPageProps) {
+  const product = await getProductBySlug(params.slug);
   if (!product) notFound();
 
   return (

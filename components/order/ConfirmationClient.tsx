@@ -9,7 +9,12 @@ import { useCartStore } from "@/store/useCartStore";
 import { formatCLP } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-export default function ConfirmationClient() {
+interface Props {
+  /** Número de pedido recibido desde la URL (?order=BLM-2026-XXXX) */
+  orderNumberFromUrl?: string;
+}
+
+export default function ConfirmationClient({ orderNumberFromUrl }: Props) {
   const order = useCheckoutStore((s) => s.order);
   const clearOrder = useCheckoutStore((s) => s.clearOrder);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -22,14 +27,14 @@ export default function ConfirmationClient() {
     return () => clearTimeout(t);
   }, [clearCart]);
 
-  /* Generate a fallback order number if none stored (e.g. direct URL access) */
+  /* Priority: URL param → Zustand store → client-side fallback */
   const [fallbackOrder] = useState(() => {
     const year = new Date().getFullYear();
     const rand = Math.floor(1000 + Math.random() * 9000);
     return `BLM-${year}-${rand}`;
   });
 
-  const orderNumber = order?.orderNumber ?? fallbackOrder;
+  const orderNumber = orderNumberFromUrl ?? order?.orderNumber ?? fallbackOrder;
 
   return (
     <div className="max-w-[860px] mx-auto px-4 md:px-8 py-14 md:py-20">

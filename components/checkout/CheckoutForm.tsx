@@ -46,12 +46,6 @@ function Section({
   );
 }
 
-function generateOrderNumber() {
-  const year = new Date().getFullYear();
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `BLM-${year}-${rand}`;
-}
-
 export default function CheckoutForm() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
@@ -83,40 +77,79 @@ export default function CheckoutForm() {
   const total = subtotal + shippingCost;
 
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   async function onSubmit(data: CheckoutFormValues) {
     setLoading(true);
-    /* Simulate processing */
-    await new Promise((res) => setTimeout(res, 1200));
+    setApiError("");
 
-    setOrder({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      deliveryType: data.deliveryType,
-      address: data.address ?? "",
-      apartment: data.apartment ?? "",
-      city: data.city ?? "",
-      region: data.region ?? "",
-      postalCode: data.postalCode ?? "",
-      paymentMethod: data.paymentMethod,
-      subtotal,
-      shippingCost,
-      total,
-      items: items.map((item) => ({
-        name: item.product.name,
-        slug: item.product.slug,
-        image: item.product.images[0],
-        size: item.size,
-        colorName: item.color.name,
-        colorHex: item.color.hex,
-        price: item.product.price,
-        quantity: item.quantity,
-      })),
-      orderNumber: generateOrderNumber(),
-    });
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName:  data.name,
+          customerEmail: data.email,
+          customerPhone: data.phone,
+          shippingType:  data.deliveryType,
+          address:       data.address,
+          city:          data.city,
+          region:        data.region,
+          paymentMethod: data.paymentMethod,
+          subtotal,
+          shipping: shippingCost,
+          total,
+          items: items.map((item) => ({
+            productId: item.product.id,
+            name:      item.product.name,
+            size:      item.size,
+            color:     item.color.name,
+            price:     item.product.price,
+            quantity:  item.quantity,
+          })),
+        }),
+      });
 
-    router.push("/order/confirmacion");
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error ?? "Error al crear el pedido.");
+      }
+
+      // Save order snapshot to Zustand for confirmation page
+      setOrder({
+        name:          data.name,
+        email:         data.email,
+        phone:         data.phone,
+        deliveryType:  data.deliveryType,
+        address:       data.address    ?? "",
+        apartment:     data.apartment  ?? "",
+        city:          data.city       ?? "",
+        region:        data.region     ?? "",
+        postalCode:    data.postalCode ?? "",
+        paymentMethod: data.paymentMethod,
+        subtotal,
+        shippingCost,
+        total,
+        items: items.map((item) => ({
+          name:      item.product.name,
+          slug:      item.product.slug,
+          image:     item.product.images[0],
+          size:      item.size,
+          colorName: item.color.name,
+          colorHex:  item.color.hex,
+          price:     item.product.price,
+          quantity:  item.quantity,
+        })),
+        orderNumber: json.orderNumber,
+      });
+
+      router.push(`/order/confirmacion?order=${json.orderNumber}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error inesperado.";
+      setApiError(msg);
+      setLoading(false);
+    }
   }
 
   if (items.length === 0) return null; /* handled by useEffect redirect */
@@ -481,6 +514,13 @@ export default function CheckoutForm() {
               </div>
             )}
           </Section>
+
+          {/* API error */}
+          {apiError && (
+            <p className="text-[12px] text-red-500 bg-red-50 border border-red-200 px-4 py-3">
+              {apiError}
+            </p>
+          )}
 
           {/* Mobile submit (below form) */}
           <div className="lg:hidden pt-2">
