@@ -13,7 +13,7 @@ const SHOP_LINKS = [
 const HELP_LINKS = [
   { label: "Política de envíos", href: "/envios" },
   { label: "Cambios y devoluciones", href: "/terminos" },
-  { label: "Guía de tallas", href: "/tallas" },
+  { label: "Guía de tallas", href: "/guia-de-tallas" },
   { label: "Contacto", href: "/contacto" },
   { label: "Sobre Bloomsy", href: "/about" },
 ];
