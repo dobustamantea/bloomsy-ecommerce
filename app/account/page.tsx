@@ -56,10 +56,7 @@ export default async function AccountPage() {
       <div className="mt-8 border border-black/10 bg-bloomsy-cream p-6 md:p-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[10px] tracking-[0.28em] uppercase text-black/40">
-              Supabase
-            </p>
-            <h2 className="mt-3 font-display text-3xl font-light">
+            <h2 className="font-display text-3xl font-light">
               Historial de ordenes
             </h2>
           </div>
