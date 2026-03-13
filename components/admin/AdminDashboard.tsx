@@ -74,10 +74,18 @@ interface AdminSubscriber {
   createdAt: string;
 }
 
+interface AdminColor {
+  id: string;
+  name: string;
+  hex: string;
+  isActive: boolean;
+}
+
 interface AdminDashboardProps {
   products: AdminProduct[];
   orders: AdminOrder[];
   subscribers: AdminSubscriber[];
+  colors: AdminColor[];
 }
 
 interface ProductFormState {
@@ -186,6 +194,7 @@ export default function AdminDashboard({
   products,
   orders,
   subscribers,
+  colors,
 }: AdminDashboardProps) {
   const router = useRouter();
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
@@ -196,12 +205,26 @@ export default function AdminDashboard({
   );
   const [productMessage, setProductMessage] = useState("");
   const [productError, setProductError] = useState("");
+  const [colorForm, setColorForm] = useState({
+    id: "",
+    name: "",
+    hex: "#000000",
+    isActive: true,
+  });
+  const [colorError, setColorError] = useState("");
+  const [colorMessage, setColorMessage] = useState("");
   const [orderFeedback, setOrderFeedback] = useState<Record<string, string>>({});
   const [orderStatuses, setOrderStatuses] = useState<Record<string, string>>(() =>
     Object.fromEntries(orders.map((order) => [order.id, order.status]))
   );
   const [isSavingProduct, startSavingProduct] = useTransition();
+  const [isSavingColor, startSavingColor] = useTransition();
   const [isUpdatingOrderId, setIsUpdatingOrderId] = useState<string | null>(null);
+
+  const activeColors = useMemo(
+    () => colors.filter((color) => color.isActive),
+    [colors]
+  );
 
   const selectedProduct = useMemo(
     () => products.find((product) => product.id === selectedProductId) ?? null,
@@ -244,14 +267,16 @@ export default function AdminDashboard({
   }
 
   function addVariant() {
+    const firstColor = activeColors[0];
+
     setForm((current) => ({
       ...current,
       variants: [
         ...current.variants,
         {
           size: "",
-          color: "",
-          colorHex: "#000000",
+          color: firstColor?.name ?? "",
+          colorHex: firstColor?.hex ?? "#000000",
           stock: "0",
         },
       ],
@@ -269,10 +294,62 @@ export default function AdminDashboard({
   }
 
   function startNewProduct() {
+    const firstColor = activeColors[0];
     setSelectedProductId(null);
-    setForm(createEmptyForm());
+    setForm({
+      ...createEmptyForm(),
+      variants: [
+        {
+          size: "",
+          color: firstColor?.name ?? "",
+          colorHex: firstColor?.hex ?? "#000000",
+          stock: "0",
+        },
+      ],
+    });
     setProductError("");
     setProductMessage("");
+  }
+
+  function updateVariantColor(index: number, colorName: string) {
+    const selectedColor =
+      colors.find((color) => color.name === colorName) ??
+      activeColors.find((color) => color.name === colorName);
+
+    setForm((current) => ({
+      ...current,
+      variants: current.variants.map((variant, variantIndex) =>
+        variantIndex === index
+          ? {
+              ...variant,
+              color: colorName,
+              colorHex: selectedColor?.hex ?? variant.colorHex,
+            }
+          : variant
+      ),
+    }));
+  }
+
+  function startNewColor() {
+    setColorForm({
+      id: "",
+      name: "",
+      hex: "#000000",
+      isActive: true,
+    });
+    setColorError("");
+    setColorMessage("");
+  }
+
+  function editColor(color: AdminColor) {
+    setColorForm({
+      id: color.id,
+      name: color.name,
+      hex: color.hex,
+      isActive: color.isActive,
+    });
+    setColorError("");
+    setColorMessage("");
   }
 
   function saveProduct() {
@@ -305,6 +382,44 @@ export default function AdminDashboard({
           isEditing
             ? "Producto actualizado correctamente."
             : "Producto creado correctamente."
+        );
+        router.refresh();
+      })();
+    });
+  }
+
+  function saveColor() {
+    setColorError("");
+    setColorMessage("");
+
+    startSavingColor(() => {
+      void (async () => {
+        const isEditing = Boolean(colorForm.id);
+        const endpoint = isEditing
+          ? `/api/admin/colors/${colorForm.id}`
+          : "/api/admin/colors";
+
+        const response = await fetch(endpoint, {
+          method: isEditing ? "PATCH" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: colorForm.name,
+            hex: colorForm.hex,
+            isActive: colorForm.isActive,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setColorError(result.error ?? "No fue posible guardar el color.");
+          return;
+        }
+
+        setColorMessage(
+          isEditing ? "Color actualizado correctamente." : "Color creado correctamente."
         );
         router.refresh();
       })();
@@ -621,7 +736,7 @@ export default function AdminDashboard({
               {form.variants.map((variant, index) => (
                 <div
                   key={`${index}-${variant.size}-${variant.color}`}
-                  className="grid gap-3 border border-black/10 bg-white p-4 md:grid-cols-[1fr_1fr_130px_110px_auto]"
+                  className="grid gap-3 border border-black/10 bg-white p-4 md:grid-cols-[1fr_1fr_110px_auto]"
                 >
                   <input
                     value={variant.size}
@@ -631,22 +746,25 @@ export default function AdminDashboard({
                     className={inputClassName}
                     placeholder="M"
                   />
-                  <input
+                  <select
                     value={variant.color}
                     onChange={(event) =>
-                      updateVariant(index, "color", event.target.value)
+                      updateVariantColor(index, event.target.value)
                     }
                     className={inputClassName}
-                    placeholder="Negro"
-                  />
-                  <input
-                    value={variant.colorHex}
-                    onChange={(event) =>
-                      updateVariant(index, "colorHex", event.target.value)
-                    }
-                    className={inputClassName}
-                    placeholder="#000000"
-                  />
+                    disabled={activeColors.length === 0}
+                  >
+                    <option value="">
+                      {activeColors.length === 0
+                        ? "Primero crea colores"
+                        : "Selecciona color"}
+                    </option>
+                    {activeColors.map((color) => (
+                      <option key={color.id} value={color.name}>
+                        {color.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     type="number"
                     min="0"
@@ -668,6 +786,9 @@ export default function AdminDashboard({
                 </div>
               ))}
             </div>
+            <p className="mt-3 text-xs text-black/45">
+              Los colores se administran en la paleta de abajo y aqui solo se seleccionan.
+            </p>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-4">
@@ -743,6 +864,162 @@ export default function AdminDashboard({
                 Crear otro
               </button>
             ) : null}
+          </div>
+        </div>
+      </section>
+
+      <section className="border border-black/10 bg-white/60 p-6 md:p-8">
+        <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <p className="text-[10px] tracking-[0.24em] uppercase text-black/40">
+              Paleta
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-light">
+              Colores
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-black/60">
+              Define aqui los colores disponibles para el catalogo. Las variantes
+              de productos usan esta lista y ya no aceptan colores libres.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {colors.map((color) => (
+                <button
+                  key={color.id}
+                  type="button"
+                  onClick={() => editColor(color)}
+                  className="flex w-full items-center justify-between gap-4 border border-black/10 bg-white px-4 py-4 text-left transition-colors hover:border-black/30"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="h-6 w-6 rounded-full border border-black/10"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-bloomsy-black">
+                        {color.name}
+                      </p>
+                      <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-black/40">
+                        {color.hex}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-black/50">
+                    {color.isActive ? "Activo" : "Oculto"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border border-black/10 bg-white p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] tracking-[0.24em] uppercase text-black/40">
+                  {colorForm.id ? "Edicion" : "Alta"}
+                </p>
+                <h3 className="mt-3 font-display text-3xl font-light">
+                  {colorForm.id ? "Editar color" : "Crear color"}
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={startNewColor}
+                className="border border-black/10 px-4 py-2 text-[11px] tracking-[0.22em] uppercase transition-colors hover:border-black"
+              >
+                Nuevo color
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_140px]">
+              <div>
+                <label className="mb-1.5 block text-[10px] tracking-[0.22em] uppercase text-black/45">
+                  Nombre
+                </label>
+                <input
+                  value={colorForm.name}
+                  onChange={(event) =>
+                    setColorForm((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  className={inputClassName}
+                  placeholder="Negro"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[10px] tracking-[0.22em] uppercase text-black/45">
+                  HEX
+                </label>
+                <input
+                  value={colorForm.hex}
+                  onChange={(event) =>
+                    setColorForm((current) => ({
+                      ...current,
+                      hex: event.target.value,
+                    }))
+                  }
+                  className={inputClassName}
+                  placeholder="#000000"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-4">
+              <span
+                className="h-10 w-10 rounded-full border border-black/10"
+                style={{ backgroundColor: colorForm.hex }}
+              />
+              <label className="inline-flex items-center gap-3 text-sm text-black/70">
+                <input
+                  type="checkbox"
+                  checked={colorForm.isActive}
+                  onChange={(event) =>
+                    setColorForm((current) => ({
+                      ...current,
+                      isActive: event.target.checked,
+                    }))
+                  }
+                />
+                Disponible para variantes
+              </label>
+            </div>
+
+            {colorError ? (
+              <p className="mt-4 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {colorError}
+              </p>
+            ) : null}
+
+            {colorMessage ? (
+              <p className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {colorMessage}
+              </p>
+            ) : null}
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={saveColor}
+                disabled={isSavingColor}
+                className="inline-flex items-center justify-center gap-2 bg-bloomsy-black px-5 py-3 text-[11px] tracking-[0.22em] uppercase text-bloomsy-cream transition-colors hover:bg-bloomsy-gray disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSavingColor ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    {colorForm.id ? "Actualizar color" : "Crear color"}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </section>

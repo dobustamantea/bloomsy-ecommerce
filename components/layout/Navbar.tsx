@@ -21,14 +21,14 @@ import { useCartStore, selectItemCount } from "@/store/useCartStore";
 import { useWishlistStore, selectWishlistCount } from "@/store/useWishlistStore";
 
 const CATEGORIES = [
-  { label: "Poleras", href: "/categoria/poleras" },
-  { label: "Tops", href: "/categoria/tops" },
-  { label: "Faldas", href: "/categoria/faldas" },
-  { label: "Abrigos", href: "/categoria/abrigos" },
-  { label: "Pantalones", href: "/categoria/pantalones" },
-  { label: "Bodys", href: "/categoria/bodys" },
-  { label: "Chalecos", href: "/categoria/chalecos" },
-  { label: "Conjuntos", href: "/categoria/conjuntos" },
+  { label: "Poleras", href: "/shop?categoria=poleras" },
+  { label: "Tops", href: "/shop?categoria=tops" },
+  { label: "Faldas", href: "/shop?categoria=faldas" },
+  { label: "Abrigos", href: "/shop?categoria=abrigos" },
+  { label: "Pantalones", href: "/shop?categoria=pantalones" },
+  { label: "Bodys", href: "/shop?categoria=bodys" },
+  { label: "Chalecos", href: "/shop?categoria=chalecos" },
+  { label: "Conjuntos", href: "/shop?categoria=conjuntos" },
 ];
 
 export default function Navbar() {

@@ -68,6 +68,28 @@ export default async function AdminPage() {
     }),
   ]);
 
+  const colorFallback = Array.from(
+    new Map(
+      products
+        .flatMap((product) => product.variants)
+        .map((variant) => [
+          variant.color,
+          {
+            id: variant.color,
+            name: variant.color,
+            hex: variant.colorHex,
+            isActive: true,
+          },
+        ])
+    ).values()
+  );
+
+  const colors = await prisma.color
+    .findMany({
+      orderBy: [{ isActive: "desc" }, { name: "asc" }],
+    })
+    .catch(() => colorFallback);
+
   return (
     <section className="mx-auto max-w-[1400px] px-4 py-12 md:px-8 md:py-16">
       <div className="border border-black/10 bg-white/50 p-8 md:p-10">
@@ -145,6 +167,12 @@ export default async function AdminPage() {
             id: subscriber.id,
             email: subscriber.email,
             createdAt: subscriber.createdAt.toISOString(),
+          }))}
+          colors={colors.map((color) => ({
+            id: color.id,
+            name: color.name,
+            hex: color.hex,
+            isActive: color.isActive,
           }))}
         />
       </div>

@@ -35,6 +35,21 @@ export default function ShopClient({ products, initialCategory }: ShopClientProp
     categories: initialCategory ? [initialCategory] : [],
   });
   const [sort, setSort] = useState<SortOption>("newest");
+  const availableColors = useMemo(() => {
+    const palette = new Map<string, Product["colors"][number]>();
+
+    for (const product of products) {
+      for (const color of product.colors) {
+        if (!palette.has(color.name)) {
+          palette.set(color.name, color);
+        }
+      }
+    }
+
+    return Array.from(palette.values()).sort((a, b) =>
+      a.name.localeCompare(b.name, "es")
+    );
+  }, [products]);
 
   const filtered = useMemo(() => {
     let list = [...products];
@@ -99,6 +114,7 @@ export default function ShopClient({ products, initialCategory }: ShopClientProp
             filters={filters}
             onChange={setFilters}
             resultCount={filtered.length}
+            availableColors={availableColors}
           />
         </div>
 
@@ -125,7 +141,11 @@ export default function ShopClient({ products, initialCategory }: ShopClientProp
       <div className="flex gap-10">
         {/* Desktop sidebar */}
         <div className="hidden md:block w-52 flex-shrink-0">
-          <FilterSidebar filters={filters} onChange={setFilters} />
+          <FilterSidebar
+            filters={filters}
+            onChange={setFilters}
+            availableColors={availableColors}
+          />
         </div>
 
         {/* Grid */}

@@ -55,3 +55,12 @@ export const adminOrderStatusSchema = z.object({
 });
 
 export const adminOrderStatuses = adminOrderStatusSchema.shape.status.options;
+
+export const adminColorSchema = z.object({
+  name: z.string().trim().min(2, "El nombre es obligatorio."),
+  hex: z
+    .string()
+    .trim()
+    .regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/, "Ingresa un color HEX valido."),
+  isActive: z.boolean(),
+});

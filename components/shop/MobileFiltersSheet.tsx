@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import FilterSidebar, { FilterState } from "./FilterSidebar";
+import type { ProductColor } from "@/types";
 
 interface MobileFiltersSheetProps {
   filters: FilterState;
   onChange: (filters: FilterState) => void;
   resultCount: number;
+  availableColors: ProductColor[];
 }
 
 export default function MobileFiltersSheet({
   filters,
   onChange,
   resultCount,
+  availableColors,
 }: MobileFiltersSheetProps) {
   const [open, setOpen] = useState(false);
 
@@ -59,7 +62,11 @@ export default function MobileFiltersSheet({
         </div>
 
         <div className="px-5 py-6">
-          <FilterSidebar filters={filters} onChange={onChange} />
+          <FilterSidebar
+            filters={filters}
+            onChange={onChange}
+            availableColors={availableColors}
+          />
         </div>
 
         {/* CTA */}
