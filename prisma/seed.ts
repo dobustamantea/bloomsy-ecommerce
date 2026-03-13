@@ -1,97 +1,85 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import { products } from "../data/products";
 
 dotenv.config({ path: ".env.local" });
 
 const connectionString = process.env.DATABASE_URL!;
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-const pool = new Pool({ connectionString });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const adapter = new PrismaPg(pool as any); // dual @types/pg version workaround
+const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("Ã°Å¸Å’Â± Seeding Bloomsy database...");
+  console.log("Seeding Bloomsy database...");
 
-  // Clear in reverse dependency order
   await prisma.orderItem.deleteMany();
   await prisma.review.deleteMany();
   await prisma.productImage.deleteMany();
   await prisma.productVariant.deleteMany();
   await prisma.product.deleteMany();
 
-  console.log("Ã°Å¸â€”â€˜Ã¯Â¸Â  Cleared existing data");
+  console.log("Cleared existing data");
 
   let seeded = 0;
 
-  for (const p of products) {
+  for (const product of products) {
     await prisma.$transaction([
-      // Product
       prisma.product.create({
         data: {
-          id:            p.id,
-          slug:          p.slug,
-          name:          p.name,
-          category:      p.category,
-          price:         p.price,
-          originalPrice: p.originalPrice ?? null,
-          description:   p.description,
-          care:          p.care,
-          isNew:         p.isNew,
-          isFeatured:    p.isFeatured,
-          isActive:      true,
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          category: product.category,
+          price: product.price,
+          originalPrice: product.originalPrice ?? null,
+          description: product.description,
+          care: product.care,
+          isNew: product.isNew,
+          isFeatured: product.isFeatured,
+          isActive: true,
         },
       }),
-
-      // Images
-      ...p.images.map((url, position) =>
+      ...product.images.map((url, position) =>
         prisma.productImage.create({
-          data: { productId: p.id, url, position },
+          data: { productId: product.id, url, position },
         })
       ),
-
-      // Variants Ã¢â‚¬â€ size Ãƒâ€” color cross product, stock=10
-      ...p.sizes.flatMap((size) =>
-        p.colors.map((color) =>
+      ...product.sizes.flatMap((size) =>
+        product.colors.map((color) =>
           prisma.productVariant.create({
             data: {
-              productId: p.id,
+              productId: product.id,
               size,
-              color:    color.name,
+              color: color.name,
               colorHex: color.hex,
-              stock:    10,
+              stock: 10,
             },
           })
         )
       ),
-
-      // Reviews
-      ...(p.reviews ?? []).map((r) =>
+      ...(product.reviews ?? []).map((review) =>
         prisma.review.create({
           data: {
-            productId: p.id,
-            author:    r.author,
-            rating:    r.rating,
-            comment:   r.comment,
-            createdAt: new Date(r.date),
+            productId: product.id,
+            author: review.author,
+            rating: review.rating,
+            comment: review.comment,
+            createdAt: new Date(review.date),
           },
         })
       ),
     ]);
 
     seeded++;
-    console.log(`  Ã¢Å“â€œ ${p.name}`);
+    console.log(`  OK ${product.name}`);
   }
 
-  console.log(`\nÃ¢Å“â€¦ Seeded ${seeded} products successfully!`);
+  console.log(`Seeded ${seeded} products successfully.`);
 }
 
 main()
-  .catch((e) => {
-    console.error("Ã¢ÂÅ’ Seed error:", e);
+  .catch((error) => {
+    console.error("Seed error:", error);
     process.exit(1);
   })
   .finally(async () => {
