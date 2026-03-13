@@ -5,8 +5,8 @@ import { ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import FilterSidebar, { FilterState } from "./FilterSidebar";
 import MobileFiltersSheet from "./MobileFiltersSheet";
-import { products, MIN_PRICE, MAX_PRICE } from "@/data/products";
-import type { SortOption } from "@/types";
+import { MIN_PRICE, MAX_PRICE } from "@/data/products";
+import type { Product, SortOption } from "@/types";
 import Link from "next/link";
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -25,10 +25,11 @@ const defaultFilters: FilterState = {
 };
 
 interface ShopClientProps {
+  products: Product[];
   initialCategory?: string;
 }
 
-export default function ShopClient({ initialCategory }: ShopClientProps) {
+export default function ShopClient({ products, initialCategory }: ShopClientProps) {
   const [filters, setFilters] = useState<FilterState>({
     ...defaultFilters,
     categories: initialCategory ? [initialCategory] : [],
