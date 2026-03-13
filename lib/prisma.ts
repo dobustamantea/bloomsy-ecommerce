@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
 
 type GlobalWithPrisma = typeof globalThis & { prisma?: PrismaClient };
 
@@ -8,9 +7,8 @@ function createClient(): PrismaClient {
   const connectionString =
     process.env.DATABASE_URL ?? "postgresql://localhost:5432/dummy";
 
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  const pool = new Pool({ connectionString });
-  const adapter = new PrismaPg(pool);
+  // PrismaPg acepta PoolConfig directamente — evita conflicto de @types/pg
+  const adapter = new PrismaPg({ connectionString });
 
   return new PrismaClient({
     adapter,
