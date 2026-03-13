@@ -1,14 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import * as dotenv from "dotenv";
 import { products } from "../data/products";
 
-// Prisma 7 requires a driver adapter; pass PoolConfig directly to avoid
-// the @types/pg version conflict with the pg package in node_modules.
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+dotenv.config({ path: ".env.local" });
+
+const connectionString = process.env.DATABASE_URL!;
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+const pool = new Pool({ connectionString });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const adapter = new PrismaPg(pool as any); // dual @types/pg version workaround
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("🌱 Seeding Bloomsy database...");
+  console.log("Ã°Å¸Å’Â± Seeding Bloomsy database...");
 
   // Clear in reverse dependency order
   await prisma.orderItem.deleteMany();
@@ -17,7 +23,7 @@ async function main() {
   await prisma.productVariant.deleteMany();
   await prisma.product.deleteMany();
 
-  console.log("🗑️  Cleared existing data");
+  console.log("Ã°Å¸â€”â€˜Ã¯Â¸Â  Cleared existing data");
 
   let seeded = 0;
 
@@ -47,7 +53,7 @@ async function main() {
         })
       ),
 
-      // Variants — size × color cross product, stock=10
+      // Variants Ã¢â‚¬â€ size Ãƒâ€” color cross product, stock=10
       ...p.sizes.flatMap((size) =>
         p.colors.map((color) =>
           prisma.productVariant.create({
@@ -77,15 +83,15 @@ async function main() {
     ]);
 
     seeded++;
-    console.log(`  ✓ ${p.name}`);
+    console.log(`  Ã¢Å“â€œ ${p.name}`);
   }
 
-  console.log(`\n✅ Seeded ${seeded} products successfully!`);
+  console.log(`\nÃ¢Å“â€¦ Seeded ${seeded} products successfully!`);
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seed error:", e);
+    console.error("Ã¢ÂÅ’ Seed error:", e);
     process.exit(1);
   })
   .finally(async () => {

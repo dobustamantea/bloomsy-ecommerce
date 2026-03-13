@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 // Next.js uses .env.local — load it explicitly for Prisma CLI
 config({ path: ".env.local" });
+
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({
