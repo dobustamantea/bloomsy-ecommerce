@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
+import AccountAddressBook from "@/components/account/AccountAddressBook";
 import AccountAuthForm from "@/components/account/AccountAuthForm";
+import AccountProfileEditor from "@/components/account/AccountProfileEditor";
 import AccountSignOutButton from "@/components/account/AccountSignOutButton";
 import { getDisplayName } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -14,31 +16,47 @@ export const metadata: Metadata = {
 export default async function AccountPage() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return <AccountAuthForm />;
   }
 
-  const orders = session.user.email
-    ? await prisma.order.findMany({
-        where: {
-          customerEmail: {
-            equals: session.user.email,
-            mode: "insensitive",
-          },
-        },
-        include: {
-          items: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      })
-    : [];
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    include: {
+      addresses: {
+        orderBy: [
+          { isDefault: "desc" },
+          { updatedAt: "desc" },
+        ],
+      },
+    },
+  });
 
-  const displayName = getDisplayName(session.user.name, session.user.email);
+  if (!user?.email) {
+    return <AccountAuthForm />;
+  }
+
+  const orders = await prisma.order.findMany({
+    where: {
+      customerEmail: {
+        equals: user.email,
+        mode: "insensitive",
+      },
+    },
+    include: {
+      items: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const displayName = getDisplayName(user.name, user.email);
 
   return (
-    <section className="max-w-[1100px] mx-auto px-4 md:px-8 py-12 md:py-16">
+    <section className="max-w-[1200px] mx-auto px-4 md:px-8 py-12 md:py-16">
       <div className="flex flex-col gap-6 border border-black/10 bg-white/40 p-8 md:flex-row md:items-end md:justify-between md:p-10">
         <div>
           <p className="text-[10px] tracking-[0.32em] uppercase text-black/45">
@@ -47,10 +65,19 @@ export default async function AccountPage() {
           <h1 className="mt-4 font-display text-4xl md:text-5xl font-light leading-none">
             {displayName}
           </h1>
-          <p className="mt-4 text-sm text-black/60">{session.user.email}</p>
+          <p className="mt-4 text-sm text-black/60">{user.email}</p>
         </div>
 
         <AccountSignOutButton />
+      </div>
+
+      <div className="mt-8 grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+        <AccountProfileEditor
+          name={user.name ?? ""}
+          email={user.email}
+          phone={user.phone}
+        />
+        <AccountAddressBook addresses={user.addresses} />
       </div>
 
       <div className="mt-8 border border-black/10 bg-bloomsy-cream p-6 md:p-8">
@@ -62,7 +89,7 @@ export default async function AccountPage() {
           </div>
           <p className="text-sm text-black/50">
             {orders.length} {orders.length === 1 ? "pedido" : "pedidos"} asociado
-            {orders.length === 1 ? "" : "s"} a {session.user.email}
+            {orders.length === 1 ? "" : "s"} a {user.email}
           </p>
         </div>
 

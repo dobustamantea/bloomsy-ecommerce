@@ -43,12 +43,14 @@ export default function Navbar() {
   const { data: session, status } = useSession();
 
   const isAuthenticated = status === "authenticated" && !!session?.user;
+  const isAdmin = Boolean(session?.user?.isAdmin);
   const accountLabel = getDisplayName(session?.user?.name, session?.user?.email);
   const mobileLinks = [
     { label: "Novedades", href: "/shop" },
     { label: "Nosotras", href: "/about" },
     { label: "Contacto", href: "/contacto" },
     { label: isAuthenticated ? accountLabel : "Mi cuenta", href: "/account" },
+    ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
     { label: "Lista de deseos", href: "/wishlist" },
   ];
 
@@ -184,6 +186,14 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <div className="hidden sm:flex items-center gap-2">
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-2 px-2 py-1.5 text-[11px] tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                  >
+                    Admin
+                  </Link>
+                ) : null}
                 <Link
                   href="/account"
                   className="flex items-center gap-2 px-2 py-1.5 text-[11px] tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"

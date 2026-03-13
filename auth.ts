@@ -5,6 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { credentialsSchema, normalizeEmail } from "@/lib/auth-helpers";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
@@ -61,9 +62,21 @@ export const authConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user?.id) {
         token.id = user.id;
+      }
+
+      if (user?.email) {
+        token.isAdmin = isAdminEmail(user.email);
+      }
+
+      if (trigger === "update" && session?.user?.name) {
+        token.name = session.user.name;
+      }
+
+      if (typeof token.email === "string") {
+        token.isAdmin = isAdminEmail(token.email);
       }
 
       return token;
@@ -71,6 +84,7 @@ export const authConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = (token.id as string) ?? token.sub ?? "";
+        session.user.isAdmin = Boolean(token.isAdmin);
       }
 
       return session;
