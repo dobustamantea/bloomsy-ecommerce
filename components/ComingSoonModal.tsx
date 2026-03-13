@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Instagram, Mail } from "lucide-react";
 
@@ -10,11 +11,14 @@ export default function ComingSoonModal() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [feedback, setFeedback] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  /* Mostrar solo si nunca se ha visto antes (localStorage) */
   useEffect(() => {
-    if (!localStorage.getItem(LS_KEY)) setOpen(true);
+    if (!localStorage.getItem(LS_KEY)) {
+      setOpen(true);
+    }
   }, []);
 
   function dismiss() {
@@ -26,145 +30,154 @@ export default function ComingSoonModal() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
     if (!validateEmail(email)) {
-      setEmailError("Ingresa un email válido.");
+      setEmailError("Ingresa un email valido.");
       return;
     }
+
     setEmailError("");
-    setSubmitted(true);
-    /* TODO Fase 2: enviar a Resend */
-    setTimeout(() => dismiss(), 2000);
+    setFeedback("");
+
+    startTransition(() => {
+      void (async () => {
+        const response = await fetch("/api/newsletter", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setEmailError(result.error ?? "No fue posible suscribirte.");
+          return;
+        }
+
+        setSubmitted(true);
+        setFeedback(result.message ?? "Listo, te avisaremos pronto.");
+        setTimeout(() => dismiss(), 2000);
+      })();
+    });
   }
 
   return (
     <AnimatePresence>
-      {open && (
-        /* ── Overlay ─────────────────────────────────────────── */
+      {open ? (
         <motion.div
           key="overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
-          /* No cierra al hacer clic fuera */
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
           aria-modal="true"
           role="dialog"
           aria-labelledby="csm-title"
         >
-          {/* ── Panel ─────────────────────────────────────────── */}
           <motion.div
             key="panel"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="w-full max-w-[520px] bg-bloomsy-cream rounded-[4px] px-7 py-10 md:px-10 md:py-12 flex flex-col items-center text-center overflow-y-auto max-h-[90vh]"
+            className="flex max-h-[90vh] w-full max-w-[520px] flex-col items-center overflow-y-auto rounded-[4px] bg-bloomsy-cream px-7 py-10 text-center md:px-10 md:py-12"
           >
-            {/* Wordmark */}
-            <p className="font-display text-[22px] md:text-[24px] tracking-[0.18em] uppercase text-bloomsy-black select-none">
+            <p className="select-none font-display text-[22px] uppercase tracking-[0.18em] text-bloomsy-black md:text-[24px]">
               Bloomsy
             </p>
 
-            {/* Separador */}
-            <div className="w-10 h-px bg-bloomsy-black mt-4 mb-5" />
+            <div className="mt-4 mb-5 h-px w-10 bg-bloomsy-black" />
 
-            {/* Eyebrow */}
-            <p className="text-[11px] tracking-[0.4em] uppercase text-bloomsy-black mb-4">
+            <p className="mb-4 text-[11px] uppercase tracking-[0.4em] text-bloomsy-black">
               Muy pronto
             </p>
 
-            {/* Título */}
             <h2
               id="csm-title"
-              className="font-display text-[32px] md:text-[42px] font-light leading-[1.1] text-bloomsy-black mb-4"
+              className="mb-4 font-display text-[32px] font-light leading-[1.1] text-bloomsy-black md:text-[42px]"
             >
               Estamos preparando
               <br />
               algo especial
             </h2>
 
-            {/* Subtítulo */}
-            <p className="text-[13px] md:text-[14px] text-black/55 leading-relaxed mb-8 max-w-[360px]">
-              La nueva colección Bloomsy llega pronto. Suscríbete y sé la
-              primera en descubrirla — con{" "}
-              <strong className="text-bloomsy-black font-medium">
-                10% off
-              </strong>{" "}
+            <p className="mb-8 max-w-[360px] text-[13px] leading-relaxed text-black/55 md:text-[14px]">
+              La nueva coleccion Bloomsy llega pronto. Suscribete y se la
+              primera en descubrirla, con{" "}
+              <strong className="font-medium text-bloomsy-black">10% off</strong>{" "}
               en tu primera compra.
             </p>
 
-            {/* Formulario */}
             {submitted ? (
-              <div className="w-full flex items-center justify-center gap-2 border border-bloomsy-black px-4 py-3 mb-6 text-[13px] text-bloomsy-black">
-                <span>✓</span>
-                <span>¡Listo! Te avisaremos pronto.</span>
+              <div className="mb-6 flex w-full items-center justify-center gap-2 border border-bloomsy-black px-4 py-3 text-[13px] text-bloomsy-black">
+                <span>OK</span>
+                <span>{feedback || "Listo, te avisaremos pronto."}</span>
               </div>
             ) : (
-              <form
-                onSubmit={handleSubmit}
-                noValidate
-                className="w-full mb-2"
-              >
-                <div className="flex items-stretch w-full">
+              <form onSubmit={handleSubmit} noValidate className="mb-2 w-full">
+                <div className="flex w-full items-stretch">
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (emailError) setEmailError("");
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      if (emailError) {
+                        setEmailError("");
+                      }
                     }}
                     placeholder="tu@email.com"
                     aria-label="Tu email"
-                    className="flex-1 min-w-0 bg-white border border-bloomsy-black border-r-0 px-3 py-3 text-[13px] text-bloomsy-black placeholder:text-black/30 outline-none focus:ring-1 focus:ring-bloomsy-black"
+                    className="min-w-0 flex-1 border border-r-0 border-bloomsy-black bg-white px-3 py-3 text-[13px] text-bloomsy-black outline-none placeholder:text-black/30 focus:ring-1 focus:ring-bloomsy-black"
                   />
                   <button
                     type="submit"
-                    className="flex-shrink-0 bg-bloomsy-black text-bloomsy-cream text-[11px] tracking-widest uppercase px-5 py-3 hover:bg-bloomsy-gray transition-colors whitespace-nowrap"
+                    disabled={isPending}
+                    className="shrink-0 whitespace-nowrap bg-bloomsy-black px-5 py-3 text-[11px] uppercase tracking-widest text-bloomsy-cream transition-colors hover:bg-bloomsy-gray disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    Suscribirme →
+                    {isPending ? "Enviando..." : "Suscribirme ->"}
                   </button>
                 </div>
-                {emailError && (
-                  <p className="text-[11px] text-red-600 text-left mt-1.5 pl-0.5">
+                {emailError ? (
+                  <p className="mt-1.5 pl-0.5 text-left text-[11px] text-red-600">
                     {emailError}
                   </p>
-                )}
+                ) : null}
               </form>
             )}
 
-            {/* Skip link */}
             <button
               onClick={dismiss}
-              className="text-[13px] text-bloomsy-black underline underline-offset-2 decoration-black/30 hover:decoration-black transition-colors mt-3 mb-8"
+              className="mt-3 mb-8 text-[13px] text-bloomsy-black underline decoration-black/30 underline-offset-2 transition-colors hover:decoration-black"
             >
-              Ya conozco la tienda, quiero explorar →
+              Ya conozco la tienda, quiero explorar {"->"}
             </button>
 
-            {/* Íconos sociales */}
             <div className="flex items-center gap-5">
               <a
                 href="https://instagram.com/bloomsy.cl"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram @bloomsy.cl"
-                className="text-black/30 hover:text-bloomsy-black transition-colors"
+                className="text-black/30 transition-colors hover:text-bloomsy-black"
               >
                 <Instagram size={17} strokeWidth={1.5} />
               </a>
               <a
                 href="mailto:info@bloomsy.cl"
                 aria-label="Email info@bloomsy.cl"
-                className="text-black/30 hover:text-bloomsy-black transition-colors"
+                className="text-black/30 transition-colors hover:text-bloomsy-black"
               >
                 <Mail size={17} strokeWidth={1.5} />
               </a>
             </div>
           </motion.div>
         </motion.div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }
