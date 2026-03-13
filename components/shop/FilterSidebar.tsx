@@ -7,10 +7,10 @@ import {
   CATEGORIES,
   ALL_SIZES,
   CURVY_SIZES,
-  ALL_COLORS,
   MIN_PRICE,
   MAX_PRICE,
 } from "@/data/products";
+import type { ProductColor } from "@/types";
 
 export interface FilterState {
   categories: string[];
@@ -23,6 +23,7 @@ export interface FilterState {
 interface FilterSidebarProps {
   filters: FilterState;
   onChange: (filters: FilterState) => void;
+  availableColors: ProductColor[];
 }
 
 function needsBorder(hex: string) {
@@ -30,7 +31,11 @@ function needsBorder(hex: string) {
   return lightColors.some((c) => c.toLowerCase() === hex.toLowerCase());
 }
 
-export default function FilterSidebar({ filters, onChange }: FilterSidebarProps) {
+export default function FilterSidebar({
+  filters,
+  onChange,
+  availableColors,
+}: FilterSidebarProps) {
   function toggleCategory(cat: string) {
     const next = filters.categories.includes(cat)
       ? filters.categories.filter((c) => c !== cat)
@@ -102,7 +107,7 @@ export default function FilterSidebar({ filters, onChange }: FilterSidebarProps)
             </button>
           ))}
           {filters.colors.map((colorName) => {
-            const color = ALL_COLORS.find((c) => c.name === colorName);
+            const color = availableColors.find((c) => c.name === colorName);
             return (
               <button
                 key={colorName}
@@ -197,7 +202,7 @@ export default function FilterSidebar({ filters, onChange }: FilterSidebarProps)
       <div>
         <p className="text-[10px] tracking-widest uppercase text-black/40 mb-3">Color</p>
         <div className="flex flex-wrap gap-2">
-          {ALL_COLORS.map((color) => {
+          {availableColors.map((color) => {
             const active = filters.colors.includes(color.name);
             return (
               <button

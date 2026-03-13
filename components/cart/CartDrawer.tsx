@@ -84,12 +84,13 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4">
             <ShoppingBag size={44} strokeWidth={1} className="text-black/15" />
             <p className="text-sm text-black/50">Tu carrito está vacío</p>
-            <button
+            <Link
+              href="/shop"
               onClick={onClose}
               className="text-[11px] tracking-widest uppercase border border-bloomsy-black px-8 py-2.5 hover:bg-bloomsy-black hover:text-bloomsy-cream transition-colors"
             >
               Explorar tienda
-            </button>
+            </Link>
           </div>
         ) : (
           <>

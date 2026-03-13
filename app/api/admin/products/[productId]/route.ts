@@ -28,6 +28,31 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    const palette = await prisma.color
+      .findMany({
+        where: {
+          isActive: true,
+          name: {
+            in: parsed.data.variants.map((variant) => variant.color),
+          },
+        },
+      })
+      .catch(() => []);
+
+    const paletteByName = new Map(
+      palette.map((color) => [color.name, color])
+    );
+    const hasInvalidColor = parsed.data.variants.some(
+      (variant) => !paletteByName.has(variant.color)
+    );
+
+    if (hasInvalidColor) {
+      return NextResponse.json(
+        { error: "Una o mas variantes usan un color no disponible en la paleta." },
+        { status: 400 }
+      );
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.product.update({
         where: { id: params.productId },
@@ -70,7 +95,7 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
           productId: params.productId,
           size: variant.size,
           color: variant.color,
-          colorHex: variant.colorHex,
+          colorHex: paletteByName.get(variant.color)?.hex ?? variant.colorHex,
           stock: variant.stock,
         })),
       });
