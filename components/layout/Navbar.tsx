@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   ShoppingBag,
@@ -11,6 +11,9 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import AccountSignOutButton from "@/components/account/AccountSignOutButton";
+import { getDisplayName } from "@/lib/auth-helpers";
 import { cn } from "@/lib/utils";
 import AnnouncementBar from "./AnnouncementBar";
 import CartDrawer from "@/components/cart/CartDrawer";
@@ -33,24 +36,39 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
-
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
   const cartCount = useCartStore(selectItemCount);
   const wishlistCount = useWishlistStore(selectWishlistCount);
+  const { data: session, status } = useSession();
 
-  // Sticky shadow on scroll
+  const isAuthenticated = status === "authenticated" && !!session?.user;
+  const accountLabel = getDisplayName(session?.user?.name, session?.user?.email);
+  const mobileLinks = [
+    { label: "Novedades", href: "/shop" },
+    { label: "Nosotras", href: "/about" },
+    { label: "Contacto", href: "/contacto" },
+    { label: isAuthenticated ? accountLabel : "Mi cuenta", href: "/account" },
+    { label: "Lista de deseos", href: "/wishlist" },
+  ];
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on route change (simple approach)
   useEffect(() => {
-    if (mobileOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileOpen]);
 
   return (
@@ -64,16 +82,14 @@ export default function Navbar() {
         )}
       >
         <nav className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Mobile: hamburger */}
           <button
             className="md:hidden p-1 -ml-1"
             onClick={() => setMobileOpen(true)}
-            aria-label="Abrir menú"
+            aria-label="Abrir menu"
           >
             <Menu size={22} />
           </button>
 
-          {/* Logo */}
           <Link
             href="/"
             className="font-display text-2xl md:text-3xl tracking-[0.18em] uppercase font-light text-bloomsy-black shrink-0 mx-auto md:mx-0"
@@ -81,9 +97,7 @@ export default function Navbar() {
             Bloomsy
           </Link>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6 text-xs tracking-widest uppercase">
-            {/* Shop with dropdown */}
             <div
               className="relative group"
               onMouseEnter={() => setShopOpen(true)}
@@ -100,7 +114,7 @@ export default function Navbar() {
                 />
               </button>
 
-              {shopOpen && (
+              {shopOpen ? (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50">
                   <div className="bg-bloomsy-cream border border-black/10 shadow-lg p-4 grid grid-cols-2 gap-x-8 gap-y-2 min-w-[280px]">
                     <Link
@@ -109,18 +123,18 @@ export default function Navbar() {
                     >
                       Ver todo
                     </Link>
-                    {CATEGORIES.map((cat) => (
+                    {CATEGORIES.map((category) => (
                       <Link
-                        key={cat.href}
-                        href={cat.href}
+                        key={category.href}
+                        href={category.href}
                         className="text-xs tracking-wider uppercase py-1 hover:opacity-60 transition-opacity"
                       >
-                        {cat.label}
+                        {category.label}
                       </Link>
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             <Link href="/shop" className="hover:opacity-60 transition-opacity">
@@ -131,16 +145,14 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 md:gap-3">
-            {/* Search */}
             {searchOpen ? (
               <div className="flex items-center gap-2 absolute left-0 right-0 top-0 h-16 bg-bloomsy-cream px-4 md:px-8 z-10 md:relative md:inset-auto md:h-auto md:bg-transparent">
                 <Search size={16} className="shrink-0 text-black/50" />
                 <input
                   autoFocus
                   type="search"
-                  placeholder="Buscar productos…"
+                  placeholder="Buscar productos..."
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-black/40"
                 />
                 <button onClick={() => setSearchOpen(false)} className="p-1">
@@ -163,20 +175,37 @@ export default function Navbar() {
               aria-label="Lista de deseos"
             >
               <Heart size={20} />
-              {wishlistCount > 0 && (
+              {wishlistCount > 0 ? (
                 <span className="absolute -top-0.5 -right-0.5 bg-bloomsy-black text-bloomsy-cream text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                   {wishlistCount > 9 ? "9+" : wishlistCount}
                 </span>
-              )}
+              ) : null}
             </Link>
 
-            <Link
-              href="/account"
-              className="hidden sm:flex p-1.5 hover:opacity-60 transition-opacity"
-              aria-label="Mi cuenta"
-            >
-              <User size={20} />
-            </Link>
+            {isAuthenticated ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 px-2 py-1.5 text-[11px] tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
+                  aria-label="Mi cuenta"
+                >
+                  <User size={18} />
+                  <span className="max-w-28 truncate">{accountLabel}</span>
+                </Link>
+                <AccountSignOutButton
+                  label="Salir"
+                  className="border-0 px-2 py-1.5 text-[11px] tracking-[0.18em] hover:bg-transparent hover:text-bloomsy-black"
+                />
+              </div>
+            ) : (
+              <Link
+                href="/account"
+                className="hidden sm:flex p-1.5 hover:opacity-60 transition-opacity"
+                aria-label="Mi cuenta"
+              >
+                <User size={20} />
+              </Link>
+            )}
 
             <button
               onClick={() => setCartDrawerOpen(true)}
@@ -184,42 +213,38 @@ export default function Navbar() {
               aria-label="Abrir carrito"
             >
               <ShoppingBag size={20} />
-              {cartCount > 0 && (
+              {cartCount > 0 ? (
                 <span className="absolute -top-0.5 -right-0.5 bg-bloomsy-black text-bloomsy-cream text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
-              )}
+              ) : null}
             </button>
           </div>
         </nav>
       </header>
 
-      {/* Cart drawer */}
       <CartDrawer open={cartDrawerOpen} onClose={() => setCartDrawerOpen(false)} />
 
-      {/* Mobile nav drawer */}
-      {mobileOpen && (
+      {mobileOpen ? (
         <div className="fixed inset-0 z-[60] flex">
-          {/* Overlay */}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
 
-          {/* Drawer */}
           <aside className="relative bg-bloomsy-cream w-72 max-w-full h-full flex flex-col shadow-2xl">
             <div className="flex items-center justify-between px-5 h-16 border-b border-black/10">
               <span className="font-display text-xl tracking-[0.15em] uppercase">
                 Bloomsy
               </span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Cerrar menú">
+              <button onClick={() => setMobileOpen(false)} aria-label="Cerrar menu">
                 <X size={20} />
               </button>
             </div>
 
             <nav className="flex-1 overflow-y-auto px-5 py-6 space-y-1">
               <p className="text-[10px] tracking-widest uppercase text-black/40 mb-3">
-                Categorías
+                Categorias
               </p>
               <Link
                 href="/shop"
@@ -228,28 +253,22 @@ export default function Navbar() {
               >
                 Ver todo
               </Link>
-              {CATEGORIES.map((cat) => (
+              {CATEGORIES.map((category) => (
                 <Link
-                  key={cat.href}
-                  href={cat.href}
+                  key={category.href}
+                  href={category.href}
                   onClick={() => setMobileOpen(false)}
                   className="block py-2.5 text-sm tracking-widest uppercase border-b border-black/5 hover:opacity-60"
                 >
-                  {cat.label}
+                  {category.label}
                 </Link>
               ))}
 
               <div className="pt-4 space-y-1">
                 <p className="text-[10px] tracking-widest uppercase text-black/40 mb-3">
-                  Más
+                  Mas
                 </p>
-                {[
-                  { label: "Novedades", href: "/shop" },
-                  { label: "Nosotras", href: "/about" },
-                  { label: "Contacto", href: "/contacto" },
-                  { label: "Mi cuenta", href: "/account" },
-                  { label: "Lista de deseos", href: "/wishlist" },
-                ].map((item) => (
+                {mobileLinks.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -260,6 +279,16 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
+
+              {isAuthenticated ? (
+                <div className="pt-4">
+                  <AccountSignOutButton
+                    label="Cerrar sesion"
+                    className="w-full justify-center"
+                    onComplete={() => setMobileOpen(false)}
+                  />
+                </div>
+              ) : null}
             </nav>
 
             <div className="px-5 py-5 border-t border-black/10 text-xs text-black/40 space-y-1">
@@ -268,7 +297,7 @@ export default function Navbar() {
             </div>
           </aside>
         </div>
-      )}
+      ) : null}
     </>
   );
 }
