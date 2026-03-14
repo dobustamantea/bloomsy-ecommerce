@@ -108,7 +108,7 @@ export default function Navbar() {
               onMouseLeave={() => setShopOpen(false)}
             >
               <button className="flex items-center gap-1 py-1 uppercase hover:opacity-60 transition-opacity">
-                Shop
+                Tienda
                 <ChevronDown
                   size={12}
                   className={cn(
