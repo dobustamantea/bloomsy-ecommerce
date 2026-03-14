@@ -594,6 +594,8 @@ export const products: Product[] = [
 export const CATEGORIES: { value: string; label: string }[] = [
   { value: "poleras", label: "Poleras" },
   { value: "tops", label: "Tops" },
+  { value: "camisas", label: "Camisas" },
+  { value: "blusas", label: "Blusas" },
   { value: "faldas", label: "Faldas" },
   { value: "abrigos", label: "Abrigos" },
   { value: "pantalones", label: "Pantalones" },

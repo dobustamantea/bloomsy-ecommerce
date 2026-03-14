@@ -3,6 +3,8 @@ import { z } from "zod";
 export const adminProductCategories = [
   "poleras",
   "tops",
+  "camisas",
+  "blusas",
   "faldas",
   "abrigos",
   "pantalones",

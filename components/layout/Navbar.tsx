@@ -23,6 +23,8 @@ import { useWishlistStore, selectWishlistCount } from "@/store/useWishlistStore"
 const CATEGORIES = [
   { label: "Poleras", href: "/shop?categoria=poleras" },
   { label: "Tops", href: "/shop?categoria=tops" },
+  { label: "Camisas", href: "/shop?categoria=camisas" },
+  { label: "Blusas", href: "/shop?categoria=blusas" },
   { label: "Faldas", href: "/shop?categoria=faldas" },
   { label: "Abrigos", href: "/shop?categoria=abrigos" },
   { label: "Pantalones", href: "/shop?categoria=pantalones" },
@@ -105,7 +107,7 @@ export default function Navbar() {
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <button className="flex items-center gap-1 py-1 hover:opacity-60 transition-opacity">
+              <button className="flex items-center gap-1 py-1 uppercase hover:opacity-60 transition-opacity">
                 Shop
                 <ChevronDown
                   size={12}
