@@ -147,7 +147,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
 
       {/* Shipping */}
       <p className="text-xs text-black/50 leading-relaxed">
-        Envío $3.990 a todo Chile vía StarKen · Gratis sobre $65.000 · 3–5 días hábiles
+        Envío $3.990 a todo Chile vía Starken · Gratis sobre $50.000 · 3–5 días hábiles
       </p>
     </div>
   );

@@ -16,4 +16,4 @@ export function formatCLP(amount: number): string {
 
 /** Shipping threshold and cost constants */
 export const SHIPPING_COST = 3990;
-export const FREE_SHIPPING_THRESHOLD = 65000;
+export const FREE_SHIPPING_THRESHOLD = 50000;
