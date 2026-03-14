@@ -5,7 +5,7 @@ const FEATURES = [
   {
     icon: Truck,
     title: "Envío gratis",
-    description: "En compras sobre $65.000 a todo Chile.",
+    description: "En compras sobre $50.000 a todo Chile.",
     href: "/envios",
   },
   {
@@ -30,7 +30,7 @@ const FEATURES = [
 
 export default function FeatureStrip() {
   return (
-    <div className="border-t border-black/8 bg-bloomsy-cream">
+    <div className="border-t border-black/8 bg-bloomsy-cream text-bloomsy-black">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
         <div className="grid grid-cols-2 divide-x divide-black/8 md:grid-cols-4">
           {FEATURES.map((feature) => {

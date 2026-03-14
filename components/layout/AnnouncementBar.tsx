@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 const MESSAGES = [
-  "Envío gratis en compras sobre $65.000",
+  "Envío gratis en compras sobre $50.000",
   "Tallas S a 4XL — porque el estilo no tiene talla",
   "Paga con Webpay o transferencia bancaria",
-  "Despacho a todo Chile con StarKen · 3 a 5 días hábiles",
+  "Despacho a todo Chile con Starken · 3 a 5 días hábiles",
 ];
 
 export default function AnnouncementBar() {

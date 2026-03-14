@@ -4,7 +4,7 @@ const VALUES = [
   {
     Icon: Truck,
     title: "Envío a todo Chile",
-    subtitle: "$3.990 · Gratis sobre $65.000",
+    subtitle: "$3.990 · Gratis sobre $50.000",
   },
   {
     Icon: Ruler,

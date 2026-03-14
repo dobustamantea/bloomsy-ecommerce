@@ -64,7 +64,7 @@ export default function ProductAccordions({ description, care }: ProductAccordio
         </Accordion.Header>
         <Accordion.Content className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
           <div className="pb-5 text-sm text-black/70 space-y-2 leading-relaxed">
-            <p>Envíos a todo Chile vía StarKen. Costo $3.990, gratis en compras sobre $65.000.</p>
+            <p>Envíos a todo Chile vía Starken. Costo $3.990, gratis en compras sobre $50.000.</p>
             <p>Tiempo de entrega: 3–5 días hábiles desde confirmación del pago.</p>
             <p>Cambios y devoluciones hasta 10 días después de recibir el pedido. El producto debe estar sin uso, con etiquetas originales.</p>
           </div>

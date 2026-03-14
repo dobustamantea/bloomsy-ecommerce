@@ -165,9 +165,9 @@ export default function Footer() {
               Envíos
             </p>
             <p className="text-xs text-white/50 leading-relaxed">
-              Todo Chile vía StarKen
+              Todo Chile vía Starken
               <br />
-              $3.990 · Gratis sobre $65.000
+              $3.990 · Gratis sobre $50.000
               <br />
               3–5 días hábiles
             </p>

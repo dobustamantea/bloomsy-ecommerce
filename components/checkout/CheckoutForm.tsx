@@ -261,8 +261,8 @@ export default function CheckoutForm() {
                   </p>
                   <p className="text-[11px] text-black/40 mt-0.5">
                     {subtotal >= FREE_SHIPPING_THRESHOLD
-                      ? "Gratis · StarKen · 3–5 días hábiles"
-                      : `$3.990 · StarKen · 3–5 días hábiles · Gratis sobre $65.000`}
+                      ? "Gratis · Starken · 3–5 días hábiles"
+                      : `$3.990 · Starken · 3–5 días hábiles · Gratis sobre $50.000`}
                   </p>
                 </div>
               </label>
