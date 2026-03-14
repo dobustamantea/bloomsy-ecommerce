@@ -37,38 +37,49 @@ export default async function AdminPage() {
     );
   }
 
-  const [products, orders, subscribers] = await Promise.all([
-    prisma.product.findMany({
-      include: {
-        images: {
-          orderBy: {
-            position: "asc",
+  let products: Awaited<ReturnType<typeof prisma.product.findMany<{ include: { images: true; variants: true } }>>> = [];
+  let orders: Awaited<ReturnType<typeof prisma.order.findMany<{ include: { items: true } }>>> = [];
+  let subscribers: { id: string; email: string; createdAt: Date }[] = [];
+  let dbError: string | null = null;
+
+  try {
+    [products, orders, subscribers] = await Promise.all([
+      prisma.product.findMany({
+        include: {
+          images: {
+            orderBy: {
+              position: "asc",
+            },
+          },
+          variants: {
+            orderBy: [{ size: "asc" }, { color: "asc" }],
           },
         },
-        variants: {
-          orderBy: [{ size: "asc" }, { color: "asc" }],
+        orderBy: {
+          updatedAt: "desc",
         },
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-    }),
-    prisma.order.findMany({
-      include: {
-        items: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    }),
-    prisma.subscriber
-      .findMany({
+      }),
+      prisma.order.findMany({
+        include: {
+          items: true,
+        },
         orderBy: {
           createdAt: "desc",
         },
-      })
-      .catch(() => [] as { id: string; email: string; createdAt: Date }[]),
-  ]);
+      }),
+      prisma.subscriber
+        .findMany({
+          orderBy: {
+            createdAt: "desc",
+          },
+        })
+        .catch(() => [] as { id: string; email: string; createdAt: Date }[]),
+    ]);
+  } catch (error) {
+    console.error("[AdminPage] DB error:", error);
+    dbError =
+      error instanceof Error ? error.message : "Error desconocido al conectar con la base de datos.";
+  }
 
   const colorFallback = Array.from(
     new Map(
@@ -111,6 +122,19 @@ export default async function AdminPage() {
           <p className="text-sm text-black/50">{session.user.email}</p>
         </div>
       </div>
+
+      {dbError ? (
+        <div className="mt-8 border border-red-200 bg-red-50 p-6 md:p-8">
+          <p className="text-[10px] tracking-[0.28em] uppercase text-red-400">
+            Error de base de datos
+          </p>
+          <p className="mt-3 text-sm font-medium text-red-700">
+            No fue posible conectar con la base de datos. El panel esta en modo
+            de solo lectura.
+          </p>
+          <p className="mt-2 font-mono text-xs text-red-500">{dbError}</p>
+        </div>
+      ) : null}
 
       <div className="mt-8">
         <AdminDashboard
