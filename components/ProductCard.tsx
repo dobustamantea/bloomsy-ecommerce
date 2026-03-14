@@ -19,7 +19,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
 
   const discount =
-    product.originalPrice
+    product.originalPrice != null && product.originalPrice > 0
       ? Math.round((1 - product.price / product.originalPrice) * 100)
       : null;
 
@@ -127,7 +127,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Price */}
         <div className="flex items-baseline gap-2">
           <span className="text-sm font-medium">{formatCLP(product.price)}</span>
-          {product.originalPrice && (
+          {product.originalPrice != null && product.originalPrice > 0 && (
             <span className="text-xs text-black/40 line-through">
               {formatCLP(product.originalPrice)}
             </span>
