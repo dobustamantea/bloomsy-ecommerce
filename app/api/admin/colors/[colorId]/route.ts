@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth";
 import { adminColorSchema } from "@/lib/admin-schema";
 import { prisma } from "@/lib/prisma";
@@ -28,12 +29,34 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    // Obtener el color actual para saber el nombre vigente antes de actualizar
+    const currentColor = await prisma.color.findUnique({
+      where: { id: params.colorId },
+    });
+
     await prisma.color.update({
       where: {
         id: params.colorId,
       },
       data: parsed.data,
     });
+
+    // Propagar cambios (nombre y/o hex) a todas las variantes que usen este color
+    if (currentColor) {
+      await prisma.productVariant
+        .updateMany({
+          where: { color: currentColor.name },
+          data: {
+            color: parsed.data.name,
+            colorHex: parsed.data.hex,
+          },
+        })
+        .catch(() => null);
+    }
+
+    // Invalidar caché de ISR para que los cambios sean inmediatos
+    revalidatePath("/shop", "page");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({ success: true });
   } catch (error) {

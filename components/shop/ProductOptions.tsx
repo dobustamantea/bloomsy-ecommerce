@@ -18,6 +18,14 @@ function needsBorder(hex: string) {
   return lightColors.some((c) => c.toLowerCase() === hex.toLowerCase());
 }
 
+/** Stock disponible para una combinación color+talla.
+ *  Si no hay datos de variantes (fallback estático), asume stock disponible. */
+function getStock(product: Product, colorName: string, size: string): number {
+  if (product.variants.length === 0) return 1;
+  const v = product.variants.find((v) => v.color === colorName && v.size === size);
+  return v?.stock ?? 0;
+}
+
 export default function ProductOptions({ product }: ProductOptionsProps) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -27,13 +35,28 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
   const toggle = useWishlistStore((s) => s.toggle);
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
 
-  const discount = product.originalPrice
+  const discount = product.originalPrice != null && product.originalPrice > 0
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
 
+  // Stock de la variante actualmente seleccionada
+  const selectedStock = selectedSize
+    ? getStock(product, selectedColor.name, selectedSize)
+    : null;
+
+  const canAddToCart = selectedSize !== null && (selectedStock ?? 0) > 0;
+
+  function handleColorChange(color: typeof selectedColor) {
+    setSelectedColor(color);
+    // Si la talla seleccionada no tiene stock para el nuevo color, la limpiamos
+    if (selectedSize && getStock(product, color.name, selectedSize) === 0) {
+      setSelectedSize(null);
+    }
+  }
+
   function handleAddToCart() {
-    if (!selectedSize) return;
-    addItem(product, selectedSize, selectedColor);
+    if (!canAddToCart) return;
+    addItem(product, selectedSize!, selectedColor);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
@@ -43,7 +66,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
       {/* Price */}
       <div className="flex items-baseline gap-3">
         <span className="font-display text-3xl font-light">{formatCLP(product.price)}</span>
-        {product.originalPrice && (
+        {product.originalPrice != null && product.originalPrice > 0 && (
           <>
             <span className="text-black/40 line-through text-base">
               {formatCLP(product.originalPrice)}
@@ -67,7 +90,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
           {product.colors.map((color) => (
             <button
               key={color.name}
-              onClick={() => setSelectedColor(color)}
+              onClick={() => handleColorChange(color)}
               title={color.name}
               aria-label={color.name}
               className={cn(
@@ -88,23 +111,35 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
           <SizeGuideModal />
         </div>
         <div className="flex flex-wrap gap-2">
-          {product.sizes.map((size) => (
-            <button
-              key={size}
-              onClick={() => setSelectedSize(size)}
-              className={cn(
-                "text-[11px] px-3 py-1.5 border transition-colors",
-                selectedSize === size
-                  ? "bg-bloomsy-black text-bloomsy-cream border-bloomsy-black"
-                  : "border-black/20 text-black/60 hover:border-bloomsy-black hover:text-bloomsy-black"
-              )}
-            >
-              {size}
-            </button>
-          ))}
+          {product.sizes.map((size) => {
+            const stock = getStock(product, selectedColor.name, size);
+            const isOutOfStock = stock === 0;
+            const isSelected = selectedSize === size;
+            return (
+              <button
+                key={size}
+                onClick={() => !isOutOfStock && setSelectedSize(size)}
+                disabled={isOutOfStock}
+                aria-label={isOutOfStock ? `${size} — agotado` : size}
+                className={cn(
+                  "text-[11px] px-3 py-1.5 border transition-colors relative",
+                  isSelected
+                    ? "bg-bloomsy-black text-bloomsy-cream border-bloomsy-black"
+                    : isOutOfStock
+                    ? "border-black/10 text-black/25 cursor-not-allowed line-through"
+                    : "border-black/20 text-black/60 hover:border-bloomsy-black hover:text-bloomsy-black"
+                )}
+              >
+                {size}
+              </button>
+            );
+          })}
         </div>
         {!selectedSize && (
           <p className="text-[10px] text-black/40 mt-2">Selecciona una talla</p>
+        )}
+        {selectedSize && selectedStock === 0 && (
+          <p className="text-[10px] text-red-500 mt-2">Esta variante está agotada</p>
         )}
       </div>
 
@@ -112,10 +147,10 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
       <div className="flex gap-3">
         <button
           onClick={handleAddToCart}
-          disabled={!selectedSize}
+          disabled={!canAddToCart}
           className={cn(
             "flex-1 flex items-center justify-center gap-2 text-[11px] tracking-widest uppercase py-4 transition-colors",
-            selectedSize
+            canAddToCart
               ? added
                 ? "bg-green-800 text-white"
                 : "bg-bloomsy-black text-bloomsy-cream hover:bg-bloomsy-gray"

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/admin-auth";
 import { adminProductSchema } from "@/lib/admin-schema";
 import { prisma } from "@/lib/prisma";
@@ -100,6 +101,11 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
         })),
       });
     });
+
+    // Invalidar ISR para que los cambios sean visibles de inmediato
+    revalidatePath("/shop", "page");
+    revalidatePath(`/shop/${parsed.data.slug}`, "page");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({ success: true });
   } catch (error) {

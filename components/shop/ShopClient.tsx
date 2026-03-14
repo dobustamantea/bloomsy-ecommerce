@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import FilterSidebar, { FilterState } from "./FilterSidebar";
@@ -30,11 +31,22 @@ interface ShopClientProps {
 }
 
 export default function ShopClient({ products, initialCategory }: ShopClientProps) {
+  const searchParams = useSearchParams();
+
   const [filters, setFilters] = useState<FilterState>({
     ...defaultFilters,
     categories: initialCategory ? [initialCategory] : [],
   });
   const [sort, setSort] = useState<SortOption>("newest");
+
+  // Sincronizar filtro de categoría cuando cambia la URL (navegación cliente)
+  useEffect(() => {
+    const categoria = searchParams.get("categoria") ?? undefined;
+    setFilters((prev) => ({
+      ...prev,
+      categories: categoria ? [categoria] : [],
+    }));
+  }, [searchParams]);
   const availableColors = useMemo(() => {
     const palette = new Map<string, Product["colors"][number]>();
 

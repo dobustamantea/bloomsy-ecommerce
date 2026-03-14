@@ -22,6 +22,12 @@ export type ProductCategory =
   | "chalecos"
   | "conjuntos";
 
+export interface ProductVariant {
+  size: string;
+  color: string; // color name
+  stock: number;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -31,6 +37,7 @@ export interface Product {
   originalPrice?: number;
   colors: ProductColor[];
   sizes: string[];
+  variants: ProductVariant[]; // vacío en datos estáticos de fallback
   images: string[];
   description: string;
   care: string[];
