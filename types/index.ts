@@ -13,6 +13,8 @@ export interface ProductReview {
 export type ProductCategory =
   | "poleras"
   | "tops"
+  | "camisas"
+  | "blusas"
   | "faldas"
   | "abrigos"
   | "pantalones"
