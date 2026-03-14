@@ -61,11 +61,13 @@ export default async function AdminPage() {
         createdAt: "desc",
       },
     }),
-    prisma.subscriber.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    }),
+    prisma.subscriber
+      .findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+      })
+      .catch(() => [] as { id: string; email: string; createdAt: Date }[]),
   ]);
 
   const colorFallback = Array.from(
