@@ -44,7 +44,7 @@ const VALUES = [
   {
     Icon: MapPin,
     title: "Argentina en Chile",
-    text: "Fundada por una argentina enamorada de Chile. Bloomsy mezcla la energía porteña con el espíritu chileno: enviamos a todo el país y celebramos la diversidad de nuestra clienta.",
+    text: "Fundada por una mendocina enamorada de Chile. Bloomsy mezcla la energía cuyana con el espíritu chileno: enviamos a todo el país y celebramos la diversidad de nuestra clienta.",
   },
 ];
 
@@ -98,7 +98,7 @@ export default function AboutPage() {
               <p className="text-[15px] md:text-base text-black/65 leading-relaxed max-w-xl">
                 Creemos que la moda debe ser para todas. Sin importar la talla,
                 el presupuesto ni el momento. Bloomsy nació del cruce entre la
-                energía argentina y el espíritu chileno: ropa hecha con
+                energía mendocina y el espíritu chileno: ropa hecha con
                 intención, para mujeres reales con estilo y actitud.
               </p>
             </div>
