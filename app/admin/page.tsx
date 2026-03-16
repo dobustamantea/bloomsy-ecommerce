@@ -25,7 +25,7 @@ export default function AdminPage() {
 
   return (
     <div
-      className="fixed inset-0 overflow-hidden bg-[#EFECDA] text-black"
+      className="fixed inset-0 z-[100] overflow-hidden bg-[#EFECDA] text-black"
       style={{ fontFamily: "var(--font-dm-sans, sans-serif)" }}
     >
       <div className="flex h-full">
