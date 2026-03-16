@@ -202,7 +202,7 @@ export default function ProductsSection() {
   const [form, setForm] = useState<FormState>(emptyForm());
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [openSections, setOpenSections] = useState<Set<AccordionKey>>(new Set(["info"]));
+  const [openSections, setOpenSections] = useState<Set<AccordionKey>>(new Set<AccordionKey>(["info"]));
   const { toasts, show } = useToast();
   const uid = useId();
 
@@ -218,7 +218,7 @@ export default function ProductsSection() {
     setSelectedId(p.id);
     setForm(productToForm(p));
     setHasChanges(false);
-    setOpenSections(new Set(["info"]));
+    setOpenSections(new Set<AccordionKey>(["info"]));
   }
 
   function newProduct() {
@@ -226,7 +226,7 @@ export default function ProductsSection() {
     setSelectedId("new");
     setForm(emptyForm());
     setHasChanges(false);
-    setOpenSections(new Set(["info"]));
+    setOpenSections(new Set<AccordionKey>(["info"]));
   }
 
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
