@@ -2,7 +2,7 @@ import {
   Body,
   Button,
   Container,
-  Head,
+
   Heading,
   Hr,
   Html,
@@ -10,7 +10,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import { EmailHeader, EmailFooter } from "./_shared";
+import { EmailHead, EmailHeader, EmailFooter } from "./_shared";
 
 interface WelcomeEmailProps {
   name: string;
@@ -20,7 +20,7 @@ interface WelcomeEmailProps {
 export default function WelcomeEmail({ name, logoUrl }: WelcomeEmailProps) {
   return (
     <Html lang="es">
-      <Head />
+      <EmailHead />
       <Preview>Bienvenida a Bloomsy, {name} 🌸</Preview>
       <Body style={body}>
         <Container style={container}>

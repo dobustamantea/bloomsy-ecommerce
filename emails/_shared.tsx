@@ -1,6 +1,22 @@
-import { Img, Heading, Link, Section, Text } from "@react-email/components";
+import { Head, Img, Heading, Link, Section, Text } from "@react-email/components";
+
+// ─── Force light mode in all email clients that support color-scheme ──────────
+export function EmailHead() {
+  return (
+    <Head>
+      <meta name="color-scheme" content="light" />
+      <meta name="supported-color-schemes" content="light" />
+      <style>{`
+        :root { color-scheme: light only; }
+      `}</style>
+    </Head>
+  );
+}
 
 // ─── Shared header with logo ──────────────────────────────────────────────────
+// Header uses cream background (#EFECDA) so the black logo is always visible
+// regardless of dark mode. We also add x-apple-data-detectors and
+// color-scheme=light via inline meta so email clients respect light palette.
 
 export function EmailHeader({ logoUrl }: { logoUrl?: string }) {
   return (
@@ -9,8 +25,8 @@ export function EmailHeader({ logoUrl }: { logoUrl?: string }) {
         <Img
           src={logoUrl}
           alt="Bloomsy"
-          width={140}
-          height={40}
+          width={160}
+          height={48}
           style={{ margin: "0 auto", display: "block", objectFit: "contain" }}
         />
       ) : (
@@ -43,13 +59,14 @@ export function EmailFooter({ unsubscribeNote }: { unsubscribeNote?: string }) {
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
 const header: React.CSSProperties = {
-  backgroundColor: "#000000",
+  backgroundColor: "#EFECDA",          // cream = logo negro siempre visible
+  borderBottom: "1px solid #D9D6C8",
   padding: "20px 40px",
   textAlign: "center",
 };
 
 const logoText: React.CSSProperties = {
-  color: "#EFECDA",
+  color: "#000000",
   fontSize: "24px",
   fontWeight: "700",
   letterSpacing: "6px",
