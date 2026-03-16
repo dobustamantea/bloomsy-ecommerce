@@ -59,8 +59,7 @@ export function EmailFooter({ unsubscribeNote }: { unsubscribeNote?: string }) {
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
 const header: React.CSSProperties = {
-  backgroundColor: "#EFECDA",          // cream = logo negro siempre visible
-  borderBottom: "1px solid #D9D6C8",
+  backgroundColor: "#EFECDA",          // crema = logo negro siempre visible
   padding: "20px 40px",
   textAlign: "center",
 };
