@@ -55,7 +55,7 @@ export default function Footer() {
               alt="Bloomsy"
               width={120}
               height={36}
-              className="h-8 w-auto object-contain"
+              className="h-8 w-auto object-contain invert"
             />
           </Link>
           <p className="text-white/50 text-xs leading-relaxed">

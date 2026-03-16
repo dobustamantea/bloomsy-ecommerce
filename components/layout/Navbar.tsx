@@ -101,7 +101,7 @@ export default function Navbar() {
               alt="Bloomsy"
               width={120}
               height={36}
-              className="h-8 w-auto object-contain invert"
+              className="h-8 w-auto object-contain"
               priority
             />
           </Link>
