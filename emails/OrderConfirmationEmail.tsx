@@ -12,6 +12,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { EmailHeader, EmailFooter } from "./_shared";
 
 interface OrderItem {
   name: string;
@@ -34,6 +35,7 @@ interface OrderConfirmationEmailProps {
   city?: string | null;
   region?: string | null;
   paymentMethod: "webpay" | "transfer";
+  logoUrl?: string;
 }
 
 function formatCLP(amount: number): string {
@@ -53,6 +55,7 @@ export default function OrderConfirmationEmail({
   city,
   region,
   paymentMethod,
+  logoUrl,
 }: OrderConfirmationEmailProps) {
   const orderUrl = `https://bloomsy.cl/order/${orderId}`;
 
@@ -62,12 +65,7 @@ export default function OrderConfirmationEmail({
       <Preview>Tu pedido {orderNumber} fue recibido ✅</Preview>
       <Body style={body}>
         <Container style={container}>
-          {/* Header */}
-          <Section style={header}>
-            <Heading style={logo}>BLOOMSY</Heading>
-          </Section>
-
-          {/* Hero */}
+          <EmailHeader logoUrl={logoUrl} />
           <Section style={content}>
             <Heading style={h1}>¡Gracias por tu pedido!</Heading>
             <Text style={text}>
@@ -77,7 +75,6 @@ export default function OrderConfirmationEmail({
                 : "Lo estamos preparando con mucho cuidado."}
             </Text>
 
-            {/* Items table */}
             <Section style={tableHeader}>
               <Row>
                 <Column style={{ ...th, width: "40%" }}>Producto</Column>
@@ -91,20 +88,13 @@ export default function OrderConfirmationEmail({
               <Section key={i} style={i % 2 === 0 ? tableRowEven : tableRowOdd}>
                 <Row>
                   <Column style={{ ...td, width: "40%" }}>{item.name}</Column>
-                  <Column style={{ ...td, width: "20%" }}>
-                    {item.size} / {item.color}
-                  </Column>
-                  <Column style={{ ...td, width: "15%", textAlign: "center" }}>
-                    {item.quantity}
-                  </Column>
-                  <Column style={{ ...td, width: "25%", textAlign: "right" }}>
-                    {formatCLP(item.price * item.quantity)}
-                  </Column>
+                  <Column style={{ ...td, width: "20%" }}>{item.size} / {item.color}</Column>
+                  <Column style={{ ...td, width: "15%", textAlign: "center" }}>{item.quantity}</Column>
+                  <Column style={{ ...td, width: "25%", textAlign: "right" }}>{formatCLP(item.price * item.quantity)}</Column>
                 </Row>
               </Section>
             ))}
 
-            {/* Totals */}
             <Section style={totalsSection}>
               <Row>
                 <Column style={totalLabel}>Subtotal</Column>
@@ -112,9 +102,7 @@ export default function OrderConfirmationEmail({
               </Row>
               <Row>
                 <Column style={totalLabel}>Despacho</Column>
-                <Column style={totalValue}>
-                  {shipping === 0 ? "Gratis" : formatCLP(shipping)}
-                </Column>
+                <Column style={totalValue}>{shipping === 0 ? "Gratis" : formatCLP(shipping)}</Column>
               </Row>
               <Row>
                 <Column style={totalLabelBold}>Total</Column>
@@ -122,27 +110,21 @@ export default function OrderConfirmationEmail({
               </Row>
             </Section>
 
-            {/* Shipping address */}
             {shippingType === "delivery" && address && (
               <Section style={infoBox}>
                 <Text style={infoLabel}>Dirección de despacho</Text>
                 <Text style={infoValue}>
-                  {address}
-                  {city ? `, ${city}` : ""}
-                  {region ? `, ${region}` : ""}
+                  {address}{city ? `, ${city}` : ""}{region ? `, ${region}` : ""}
                 </Text>
               </Section>
             )}
             {shippingType === "pickup" && (
               <Section style={infoBox}>
                 <Text style={infoLabel}>Retiro en tienda</Text>
-                <Text style={infoValue}>
-                  Te avisaremos cuando tu pedido esté listo para retirar.
-                </Text>
+                <Text style={infoValue}>Te avisaremos cuando tu pedido esté listo para retirar.</Text>
               </Section>
             )}
 
-            {/* CTA */}
             <Section style={buttonContainer}>
               <Button style={button} href={orderUrl}>
                 Ver Detalles del Pedido
@@ -151,210 +133,44 @@ export default function OrderConfirmationEmail({
           </Section>
 
           <Hr style={hr} />
-
-          {/* Footer */}
-          <Section style={footer}>
-            <Text style={footerText}>
-              Instagram:{" "}
-              <a href="https://instagram.com/bloomsy.cl" style={link}>
-                @bloomsy.cl
-              </a>{" "}
-              · WhatsApp:{" "}
-              <a href="https://wa.me/56992723158" style={link}>
-                +56 9 9272 3158
-              </a>
-            </Text>
-            <Text style={footerSmall}>
-              Bloomsy · bloomsy.cl ·{" "}
-              <a href="https://bloomsy.cl/unsubscribe" style={link}>
-                Cancelar suscripción
-              </a>
-            </Text>
-          </Section>
+          <EmailFooter />
         </Container>
       </Body>
     </Html>
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
-
 const body: React.CSSProperties = {
-  backgroundColor: "#EFECDA",
-  fontFamily: "'DM Sans', Arial, sans-serif",
-  margin: 0,
-  padding: "32px 0",
+  backgroundColor: "#EFECDA", fontFamily: "'DM Sans', Arial, sans-serif", margin: 0, padding: "32px 0",
 };
-
 const container: React.CSSProperties = {
-  backgroundColor: "#ffffff",
-  margin: "0 auto",
-  maxWidth: "560px",
-  borderRadius: "4px",
-  overflow: "hidden",
+  backgroundColor: "#ffffff", margin: "0 auto", maxWidth: "560px", borderRadius: "4px", overflow: "hidden",
 };
-
-const header: React.CSSProperties = {
-  backgroundColor: "#000000",
-  padding: "24px 40px",
-  textAlign: "center",
-};
-
-const logo: React.CSSProperties = {
-  color: "#EFECDA",
-  fontSize: "24px",
-  fontWeight: "700",
-  letterSpacing: "6px",
-  margin: 0,
-};
-
-const content: React.CSSProperties = {
-  padding: "40px 40px 32px",
-};
-
-const h1: React.CSSProperties = {
-  color: "#000000",
-  fontSize: "22px",
-  fontWeight: "600",
-  margin: "0 0 16px",
-};
-
-const text: React.CSSProperties = {
-  color: "#444444",
-  fontSize: "15px",
-  lineHeight: "24px",
-  margin: "0 0 20px",
-};
-
-const tableHeader: React.CSSProperties = {
-  backgroundColor: "#000000",
-  borderRadius: "2px",
-  padding: "0 8px",
-};
-
+const content: React.CSSProperties = { padding: "40px 40px 32px" };
+const h1: React.CSSProperties = { color: "#000000", fontSize: "22px", fontWeight: "600", margin: "0 0 16px" };
+const text: React.CSSProperties = { color: "#444444", fontSize: "15px", lineHeight: "24px", margin: "0 0 20px" };
+const tableHeader: React.CSSProperties = { backgroundColor: "#000000", borderRadius: "2px", padding: "0 8px" };
 const th: React.CSSProperties = {
-  color: "#EFECDA",
-  fontSize: "11px",
-  fontWeight: "600",
-  letterSpacing: "1px",
-  padding: "10px 8px",
-  textTransform: "uppercase",
+  color: "#EFECDA", fontSize: "11px", fontWeight: "600", letterSpacing: "1px",
+  padding: "10px 8px", textTransform: "uppercase",
 };
-
-const tableRowEven: React.CSSProperties = {
-  backgroundColor: "#FAFAFA",
-  padding: "0 8px",
-};
-
-const tableRowOdd: React.CSSProperties = {
-  backgroundColor: "#ffffff",
-  padding: "0 8px",
-};
-
-const td: React.CSSProperties = {
-  color: "#333333",
-  fontSize: "13px",
-  lineHeight: "20px",
-  padding: "10px 8px",
-};
-
-const totalsSection: React.CSSProperties = {
-  borderTop: "2px solid #000000",
-  marginTop: "8px",
-  paddingTop: "12px",
-};
-
-const totalLabel: React.CSSProperties = {
-  color: "#666666",
-  fontSize: "13px",
-  padding: "4px 8px",
-};
-
-const totalValue: React.CSSProperties = {
-  color: "#333333",
-  fontSize: "13px",
-  padding: "4px 8px",
-  textAlign: "right",
-};
-
-const totalLabelBold: React.CSSProperties = {
-  color: "#000000",
-  fontSize: "15px",
-  fontWeight: "700",
-  padding: "8px 8px 0",
-};
-
-const totalValueBold: React.CSSProperties = {
-  color: "#000000",
-  fontSize: "15px",
-  fontWeight: "700",
-  padding: "8px 8px 0",
-  textAlign: "right",
-};
-
-const infoBox: React.CSSProperties = {
-  backgroundColor: "#EFECDA",
-  borderRadius: "4px",
-  marginTop: "24px",
-  padding: "16px 20px",
-};
-
+const tableRowEven: React.CSSProperties = { backgroundColor: "#FAFAFA", padding: "0 8px" };
+const tableRowOdd: React.CSSProperties = { backgroundColor: "#ffffff", padding: "0 8px" };
+const td: React.CSSProperties = { color: "#333333", fontSize: "13px", lineHeight: "20px", padding: "10px 8px" };
+const totalsSection: React.CSSProperties = { borderTop: "2px solid #000000", marginTop: "8px", paddingTop: "12px" };
+const totalLabel: React.CSSProperties = { color: "#666666", fontSize: "13px", padding: "4px 8px" };
+const totalValue: React.CSSProperties = { color: "#333333", fontSize: "13px", padding: "4px 8px", textAlign: "right" };
+const totalLabelBold: React.CSSProperties = { color: "#000000", fontSize: "15px", fontWeight: "700", padding: "8px 8px 0" };
+const totalValueBold: React.CSSProperties = { color: "#000000", fontSize: "15px", fontWeight: "700", padding: "8px 8px 0", textAlign: "right" };
+const infoBox: React.CSSProperties = { backgroundColor: "#EFECDA", borderRadius: "4px", marginTop: "24px", padding: "16px 20px" };
 const infoLabel: React.CSSProperties = {
-  color: "#000000",
-  fontSize: "11px",
-  fontWeight: "700",
-  letterSpacing: "1px",
-  margin: "0 0 4px",
-  textTransform: "uppercase",
+  color: "#000000", fontSize: "11px", fontWeight: "700", letterSpacing: "1px", margin: "0 0 4px", textTransform: "uppercase",
 };
-
-const infoValue: React.CSSProperties = {
-  color: "#444444",
-  fontSize: "14px",
-  lineHeight: "20px",
-  margin: 0,
-};
-
-const buttonContainer: React.CSSProperties = {
-  textAlign: "center",
-  marginTop: "28px",
-};
-
+const infoValue: React.CSSProperties = { color: "#444444", fontSize: "14px", lineHeight: "20px", margin: 0 };
+const buttonContainer: React.CSSProperties = { textAlign: "center", marginTop: "28px" };
 const button: React.CSSProperties = {
-  backgroundColor: "#000000",
-  borderRadius: "2px",
-  color: "#EFECDA",
-  display: "inline-block",
-  fontSize: "13px",
-  fontWeight: "600",
-  letterSpacing: "2px",
-  padding: "14px 32px",
-  textDecoration: "none",
-  textTransform: "uppercase",
+  backgroundColor: "#000000", borderRadius: "2px", color: "#EFECDA", display: "inline-block",
+  fontSize: "13px", fontWeight: "600", letterSpacing: "2px", padding: "14px 32px",
+  textDecoration: "none", textTransform: "uppercase",
 };
-
-const hr: React.CSSProperties = {
-  borderColor: "#E5E5E5",
-  margin: "0 40px",
-};
-
-const footer: React.CSSProperties = {
-  padding: "24px 40px",
-  textAlign: "center",
-};
-
-const footerText: React.CSSProperties = {
-  color: "#888888",
-  fontSize: "13px",
-  margin: "0 0 8px",
-};
-
-const footerSmall: React.CSSProperties = {
-  color: "#AAAAAA",
-  fontSize: "11px",
-  margin: 0,
-};
-
-const link: React.CSSProperties = {
-  color: "#000000",
-};
+const hr: React.CSSProperties = { borderColor: "#E5E5E5", margin: "0 40px" };

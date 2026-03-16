@@ -30,20 +30,19 @@ interface OrderEmailData {
   }[];
 }
 
-// ─── Client (singleton safe for serverless) ───────────────────────────────────
+// ─── Client ───────────────────────────────────────────────────────────────────
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    throw new Error("RESEND_API_KEY is not set");
-  }
+  if (!key) throw new Error("RESEND_API_KEY is not set");
   return new Resend(key);
 }
 
-// Use verified domain in production; falls back to Resend test sender
-// while bloomsy.cl DNS records are pending verification in Resend dashboard
-const FROM =
-  process.env.RESEND_FROM_EMAIL ?? "Bloomsy <onboarding@resend.dev>";
+// Use verified domain; falls back to Resend test sender
+const FROM = process.env.RESEND_FROM_EMAIL ?? "Bloomsy <onboarding@resend.dev>";
+
+// Public URL of the Bloomsy logo (hosted on Supabase Storage or any CDN)
+const LOGO_URL = process.env.LOGO_URL ?? undefined;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -67,11 +66,8 @@ async function sendEmail(options: {
       subject: options.subject,
       html: options.html,
     });
-    if (error) {
-      console.error("[email] Resend error:", error);
-    }
+    if (error) console.error("[email] Resend error:", error);
   } catch (err) {
-    // Never let email failures crash the main request
     console.error("[email] send failed:", err);
   }
 }
@@ -79,12 +75,8 @@ async function sendEmail(options: {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function sendWelcomeEmail(email: string, name: string): Promise<void> {
-  const html = await render(WelcomeEmail({ name }));
-  await sendEmail({
-    to: email,
-    subject: `Bienvenida a Bloomsy, ${name} 🌸`,
-    html,
-  });
+  const html = await render(WelcomeEmail({ name, logoUrl: LOGO_URL }));
+  await sendEmail({ to: email, subject: `Bienvenida a Bloomsy, ${name} 🌸`, html });
 }
 
 export async function sendOrderConfirmationEmail(
@@ -105,6 +97,7 @@ export async function sendOrderConfirmationEmail(
       city: order.city,
       region: order.region,
       paymentMethod: order.paymentMethod,
+      logoUrl: LOGO_URL,
     })
   );
   await sendEmail({
@@ -124,6 +117,7 @@ export async function sendOrderDispatchedEmail(
       customerName: order.customerName,
       orderNumber: order.orderNumber,
       trackingNumber,
+      logoUrl: LOGO_URL,
     })
   );
   await sendEmail({
@@ -137,17 +131,13 @@ export async function sendPasswordResetEmail(
   email: string,
   resetToken: string
 ): Promise<void> {
-  const html = await render(PasswordResetEmail({ resetToken }));
-  await sendEmail({
-    to: email,
-    subject: "Restablecer tu contraseña en Bloomsy",
-    html,
-  });
+  const html = await render(PasswordResetEmail({ resetToken, logoUrl: LOGO_URL }));
+  await sendEmail({ to: email, subject: "Restablecer tu contraseña en Bloomsy", html });
 }
 
 export async function sendNewsletterWelcomeEmail(email: string): Promise<void> {
   const promoCode = generatePromoCode();
-  const html = await render(NewsletterWelcomeEmail({ promoCode }));
+  const html = await render(NewsletterWelcomeEmail({ promoCode, logoUrl: LOGO_URL }));
   await sendEmail({
     to: email,
     subject: "¡Bienvenida a Bloomsy! Aquí tienes tu 10% de descuento 🌸",
