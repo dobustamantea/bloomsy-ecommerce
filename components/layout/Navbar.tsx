@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -94,11 +95,15 @@ export default function Navbar() {
             <Menu size={22} />
           </button>
 
-          <Link
-            href="/"
-            className="font-display text-2xl md:text-3xl tracking-[0.18em] uppercase font-light text-bloomsy-black shrink-0 mx-auto md:mx-0"
-          >
-            Bloomsy
+          <Link href="/" className="shrink-0 mx-auto md:mx-0">
+            <Image
+              src="https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png"
+              alt="Bloomsy"
+              width={120}
+              height={36}
+              className="h-8 w-auto object-contain invert"
+              priority
+            />
           </Link>
 
           <div className="hidden md:flex items-center gap-6 text-xs tracking-widest uppercase">

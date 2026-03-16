@@ -42,7 +42,7 @@ function getResend() {
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Bloomsy <onboarding@resend.dev>";
 
 // Public URL of the Bloomsy logo (hosted on Supabase Storage or any CDN)
-const LOGO_URL = process.env.LOGO_URL ?? undefined;
+const LOGO_URL = process.env.LOGO_URL ?? "https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

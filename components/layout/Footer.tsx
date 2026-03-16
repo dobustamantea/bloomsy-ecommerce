@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Instagram, Mail, Phone } from "lucide-react";
 import NewsletterForm from "./NewsletterForm";
@@ -48,11 +49,14 @@ export default function Footer() {
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
         {/* Brand column */}
         <div className="col-span-2 md:col-span-1 space-y-4">
-          <Link
-            href="/"
-            className="font-display text-2xl tracking-[0.18em] uppercase font-light"
-          >
-            Bloomsy
+          <Link href="/" className="inline-block">
+            <Image
+              src="https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png"
+              alt="Bloomsy"
+              width={120}
+              height={36}
+              className="h-8 w-auto object-contain"
+            />
           </Link>
           <p className="text-white/50 text-xs leading-relaxed">
             High Modern Style. Ropa femenina chilena para mujeres reales con
