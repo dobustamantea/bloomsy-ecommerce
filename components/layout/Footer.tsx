@@ -53,9 +53,9 @@ export default function Footer() {
             <Image
               src="https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png"
               alt="Bloomsy"
-              width={120}
-              height={36}
-              className="h-8 w-auto object-contain invert"
+              width={320}
+              height={96}
+              className="h-5 md:h-6 w-auto object-contain invert"
             />
           </Link>
           <p className="text-white/50 text-xs leading-relaxed">
