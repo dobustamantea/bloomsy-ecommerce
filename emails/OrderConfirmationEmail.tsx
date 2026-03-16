@@ -3,7 +3,7 @@ import {
   Button,
   Column,
   Container,
-  Head,
+
   Heading,
   Hr,
   Html,
@@ -12,7 +12,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import { EmailHeader, EmailFooter } from "./_shared";
+import { EmailHead, EmailHeader, EmailFooter } from "./_shared";
 
 interface OrderItem {
   name: string;
@@ -61,7 +61,7 @@ export default function OrderConfirmationEmail({
 
   return (
     <Html lang="es">
-      <Head />
+      <EmailHead />
       <Preview>Tu pedido {orderNumber} fue recibido ✅</Preview>
       <Body style={body}>
         <Container style={container}>

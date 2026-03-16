@@ -2,7 +2,7 @@ import {
   Body,
   Button,
   Container,
-  Head,
+
   Heading,
   Hr,
   Html,
@@ -10,7 +10,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import { EmailHeader, EmailFooter } from "./_shared";
+import { EmailHead, EmailHeader, EmailFooter } from "./_shared";
 
 interface NewsletterWelcomeEmailProps {
   promoCode: string;
@@ -22,7 +22,7 @@ export default function NewsletterWelcomeEmail({ promoCode, logoUrl }: Newslette
 
   return (
     <Html lang="es">
-      <Head />
+      <EmailHead />
       <Preview>Tu 10% de descuento en Bloomsy 🌸</Preview>
       <Body style={body}>
         <Container style={container}>

@@ -2,7 +2,7 @@ import {
   Body,
   Button,
   Container,
-  Head,
+
   Heading,
   Hr,
   Html,
@@ -10,7 +10,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import { EmailHeader, EmailFooter } from "./_shared";
+import { EmailHead, EmailHeader, EmailFooter } from "./_shared";
 
 interface OrderDispatchedEmailProps {
   customerName: string;
@@ -31,7 +31,7 @@ export default function OrderDispatchedEmail({
 
   return (
     <Html lang="es">
-      <Head />
+      <EmailHead />
       <Preview>Tu pedido {orderNumber} está en camino 🚚</Preview>
       <Body style={body}>
         <Container style={container}>
