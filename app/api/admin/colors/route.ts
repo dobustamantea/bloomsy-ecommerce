@@ -13,7 +13,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const { name, hex } = await req.json();
-    const color = await prisma.color.create({ data: { name, hex } });
+    const color = await prisma.color.create({ data: { name, hex, isActive: true } });
     return NextResponse.json(color, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Error creating color" }, { status: 500 });

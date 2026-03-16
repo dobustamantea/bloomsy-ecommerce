@@ -9,6 +9,7 @@ interface Color {
   id: string;
   name: string;
   hex: string;
+  isActive: boolean;
   createdAt: string;
 }
 
@@ -77,14 +78,16 @@ export default function ColorsSection() {
 
   async function updateColor(id: string) {
     if (!editForm.name.trim() || !isValidHex(editForm.hex)) return;
+    const existing = colors.find((c) => c.id === id);
     const res = await fetch(`/api/admin/colors/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify({ ...editForm, isActive: existing?.isActive ?? true }),
     });
     if (res.ok) {
-      const updated: Color = await res.json();
-      setColors((c) => c.map((x) => (x.id === id ? updated : x)));
+      setColors((c) =>
+        c.map((x) => (x.id === id ? { ...x, name: editForm.name, hex: editForm.hex } : x))
+      );
       setEditingId(null);
     }
   }

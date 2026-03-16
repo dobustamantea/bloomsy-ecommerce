@@ -126,3 +126,25 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     );
   }
 }
+
+export async function DELETE(
+  _: NextRequest,
+  { params }: RouteContext
+) {
+  const session = await getAdminSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 403 });
+  }
+  try {
+    await prisma.product.delete({ where: { id: params.productId } });
+    revalidatePath("/shop", "page");
+    revalidatePath("/", "layout");
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[DELETE /api/admin/products/[productId]] error:", error);
+    return NextResponse.json(
+      { error: "No fue posible eliminar el producto." },
+      { status: 500 }
+    );
+  }
+}

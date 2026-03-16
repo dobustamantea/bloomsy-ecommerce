@@ -190,10 +190,19 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse bg-black/10 ${className}`} />;
 }
 
+// ── Types (colors) ────────────────────────────────────────────────────────────
+
+interface ColorOption {
+  id: string;
+  name: string;
+  hex: string;
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function ProductsSection() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [colors, setColors] = useState<ColorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -207,10 +216,14 @@ export default function ProductsSection() {
   const uid = useId();
 
   useEffect(() => {
-    fetch("/api/admin/products")
-      .then((r) => r.json())
-      .then((d) => { setProducts(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch("/api/admin/products").then((r) => r.json()),
+      fetch("/api/admin/colors").then((r) => r.json()),
+    ]).then(([prods, cols]) => {
+      setProducts(prods);
+      if (Array.isArray(cols)) setColors(cols);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   function selectProduct(p: AdminProduct) {
@@ -269,24 +282,47 @@ export default function ProductsSection() {
       const res = await fetch(
         isNew ? "/api/admin/products" : `/api/admin/products/${selectedId}`,
         {
-          method: isNew ? "POST" : "PUT",
+          method: isNew ? "POST" : "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       );
-      if (!res.ok) throw new Error();
-      const saved: AdminProduct = await res.json();
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Error");
+      }
       if (isNew) {
+        const saved: AdminProduct = await res.json();
         setProducts((p) => [saved, ...p]);
         setSelectedId(saved.id);
+        setForm(productToForm(saved));
       } else {
-        setProducts((p) => p.map((x) => (x.id === saved.id ? saved : x)));
+        // PATCH returns { success: true } — reconstruct locally
+        const existing = products.find((p) => p.id === selectedId);
+        if (existing) {
+          const updated: AdminProduct = {
+            ...existing,
+            name: payload.name,
+            slug: payload.slug,
+            category: payload.category,
+            price: payload.price,
+            originalPrice: payload.originalPrice,
+            description: payload.description,
+            care: payload.care,
+            isNew: payload.isNew,
+            isFeatured: payload.isFeatured,
+            isActive: payload.isActive,
+            images: payload.images.map((url, i) => ({ url, position: i })),
+            variants: payload.variants,
+          };
+          setProducts((p) => p.map((x) => (x.id === selectedId ? updated : x)));
+          setForm(productToForm(updated));
+        }
       }
-      setForm(productToForm(saved));
       setHasChanges(false);
       show("success", isNew ? "Producto creado" : "Producto actualizado");
-    } catch {
-      show("error", "Error al guardar el producto");
+    } catch (e) {
+      show("error", e instanceof Error ? e.message : "Error al guardar el producto");
     } finally {
       setSaving(false);
     }
@@ -666,19 +702,26 @@ export default function ProductsSection() {
             >
               <div className="space-y-2">
                 {/* Header */}
-                <div className="hidden sm:grid grid-cols-[1fr_1fr_5rem_4rem_1.5rem] gap-1 text-xs text-black/35 pb-1 border-b border-black/10">
+                <div className="hidden sm:grid grid-cols-[1fr_1fr_4rem_1.5rem] gap-1 text-xs text-black/35 pb-1 border-b border-black/10">
                   <span>Talla</span>
                   <span>Color</span>
-                  <span>HEX</span>
                   <span>Stock</span>
                   <span />
                 </div>
 
+                {colors.length === 0 && (
+                  <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-2">
+                    No hay colores registrados. Crea colores en la sección{" "}
+                    <strong>Colores</strong> primero.
+                  </p>
+                )}
+
                 {form.variants.map((v, i) => (
                   <div
                     key={i}
-                    className="grid grid-cols-[1fr_1fr_5rem_4rem_1.5rem] gap-1 items-center"
+                    className="grid grid-cols-[1fr_1fr_4rem_1.5rem] gap-1 items-center"
                   >
+                    {/* Talla */}
                     <input
                       type="text"
                       value={v.size}
@@ -690,40 +733,38 @@ export default function ProductsSection() {
                       placeholder="S"
                       className="border border-black/20 px-2 py-1.5 text-xs focus:outline-none focus:border-black"
                     />
-                    <input
-                      type="text"
-                      value={v.color}
-                      onChange={(e) => {
-                        const vs = [...form.variants];
-                        vs[i] = { ...vs[i], color: e.target.value };
-                        updateForm("variants", vs);
-                      }}
-                      placeholder="Negro"
-                      className="border border-black/20 px-2 py-1.5 text-xs focus:outline-none focus:border-black"
-                    />
-                    <div className="flex gap-1 items-center">
-                      <input
-                        type="color"
-                        value={v.colorHex}
+
+                    {/* Color select */}
+                    <div className="flex gap-1 items-center min-w-0">
+                      {/* Swatch preview */}
+                      <div
+                        className="w-5 h-5 shrink-0 border border-black/20 rounded-sm"
+                        style={{ backgroundColor: v.colorHex || "#ccc" }}
+                      />
+                      <select
+                        value={v.color}
                         onChange={(e) => {
+                          const chosen = colors.find((c) => c.name === e.target.value);
                           const vs = [...form.variants];
-                          vs[i] = { ...vs[i], colorHex: e.target.value };
+                          vs[i] = {
+                            ...vs[i],
+                            color: chosen?.name ?? "",
+                            colorHex: chosen?.hex ?? "#000000",
+                          };
                           updateForm("variants", vs);
                         }}
-                        className="w-7 h-7 cursor-pointer border border-black/20 p-0.5 shrink-0"
-                      />
-                      <input
-                        type="text"
-                        value={v.colorHex}
-                        onChange={(e) => {
-                          const vs = [...form.variants];
-                          vs[i] = { ...vs[i], colorHex: e.target.value };
-                          updateForm("variants", vs);
-                        }}
-                        maxLength={7}
-                        className="flex-1 border border-black/20 px-1 py-1.5 text-xs font-mono focus:outline-none focus:border-black min-w-0"
-                      />
+                        className="flex-1 border border-black/20 px-1 py-1.5 text-xs focus:outline-none focus:border-black bg-transparent min-w-0"
+                      >
+                        <option value="">— Color —</option>
+                        {colors.map((c) => (
+                          <option key={c.id} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+
+                    {/* Stock */}
                     <input
                       type="number"
                       value={v.stock}

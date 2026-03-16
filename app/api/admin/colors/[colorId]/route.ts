@@ -77,3 +77,24 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     );
   }
 }
+
+export async function DELETE(
+  _: NextRequest,
+  { params }: RouteContext
+) {
+  const session = await getAdminSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 403 });
+  }
+  try {
+    await prisma.color.delete({ where: { id: params.colorId } });
+    revalidatePath("/shop", "page");
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[DELETE /api/admin/colors/[colorId]] error:", error);
+    return NextResponse.json(
+      { error: "No fue posible eliminar el color." },
+      { status: 500 }
+    );
+  }
+}
