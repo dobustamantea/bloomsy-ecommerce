@@ -40,7 +40,10 @@ function getResend() {
   return new Resend(key);
 }
 
-const FROM = "Bloomsy <hola@bloomsy.cl>";
+// Use verified domain in production; falls back to Resend test sender
+// while bloomsy.cl DNS records are pending verification in Resend dashboard
+const FROM =
+  process.env.RESEND_FROM_EMAIL ?? "Bloomsy <onboarding@resend.dev>";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send newsletter welcome email (fire-and-forget)
-    void sendNewsletterWelcomeEmail(email);
+    // Send newsletter welcome email
+    await sendNewsletterWelcomeEmail(email);
 
     return NextResponse.json({
       success: true,
