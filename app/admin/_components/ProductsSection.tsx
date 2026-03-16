@@ -641,6 +641,7 @@ export default function ProductsSection() {
               onToggle={() => toggleSection("photos")}
             >
               <ImageUploader
+                key={selectedId ?? "new"}
                 photos={form.images}
                 productSlug={form.slug}
                 onChange={(urls) => updateForm("images", urls)}
