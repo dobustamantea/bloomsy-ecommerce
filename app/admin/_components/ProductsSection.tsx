@@ -282,24 +282,47 @@ export default function ProductsSection() {
       const res = await fetch(
         isNew ? "/api/admin/products" : `/api/admin/products/${selectedId}`,
         {
-          method: isNew ? "POST" : "PUT",
+          method: isNew ? "POST" : "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       );
-      if (!res.ok) throw new Error();
-      const saved: AdminProduct = await res.json();
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Error");
+      }
       if (isNew) {
+        const saved: AdminProduct = await res.json();
         setProducts((p) => [saved, ...p]);
         setSelectedId(saved.id);
+        setForm(productToForm(saved));
       } else {
-        setProducts((p) => p.map((x) => (x.id === saved.id ? saved : x)));
+        // PATCH returns { success: true } — reconstruct locally
+        const existing = products.find((p) => p.id === selectedId);
+        if (existing) {
+          const updated: AdminProduct = {
+            ...existing,
+            name: payload.name,
+            slug: payload.slug,
+            category: payload.category,
+            price: payload.price,
+            originalPrice: payload.originalPrice,
+            description: payload.description,
+            care: payload.care,
+            isNew: payload.isNew,
+            isFeatured: payload.isFeatured,
+            isActive: payload.isActive,
+            images: payload.images.map((url, i) => ({ url, position: i })),
+            variants: payload.variants,
+          };
+          setProducts((p) => p.map((x) => (x.id === selectedId ? updated : x)));
+          setForm(productToForm(updated));
+        }
       }
-      setForm(productToForm(saved));
       setHasChanges(false);
       show("success", isNew ? "Producto creado" : "Producto actualizado");
-    } catch {
-      show("error", "Error al guardar el producto");
+    } catch (e) {
+      show("error", e instanceof Error ? e.message : "Error al guardar el producto");
     } finally {
       setSaving(false);
     }

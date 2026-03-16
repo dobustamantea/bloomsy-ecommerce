@@ -41,12 +41,12 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   confirmed: { label: "Confirmado", className: "bg-blue-100 text-blue-700" },
   paid:      { label: "Pagado",     className: "bg-green-100 text-green-700" },
   preparing: { label: "Preparando", className: "bg-yellow-100 text-yellow-700" },
-  shipping:  { label: "En envío",   className: "bg-orange-100 text-orange-700" },
+  shipped:   { label: "En envío",   className: "bg-orange-100 text-orange-700" },
   delivered: { label: "Entregado",  className: "bg-green-200 text-green-800" },
   cancelled: { label: "Cancelado",  className: "bg-red-100 text-red-700" },
 };
 
-const STATUS_FLOW = ["pending", "confirmed", "paid", "preparing", "shipping", "delivered"];
+const STATUS_FLOW = ["pending", "confirmed", "paid", "preparing", "shipped", "delivered"];
 
 const FILTER_TABS = [
   { key: "all",        label: "Todos" },
@@ -76,7 +76,7 @@ function filterOrders(orders: Order[], tab: string) {
   if (tab === "all")        return orders;
   if (tab === "pending")    return orders.filter((o) => o.status === "pending");
   if (tab === "inprogress") return orders.filter((o) =>
-    ["confirmed", "paid", "preparing", "shipping"].includes(o.status)
+    ["confirmed", "paid", "preparing", "shipped"].includes(o.status)
   );
   if (tab === "delivered")  return orders.filter((o) => o.status === "delivered");
   if (tab === "cancelled")  return orders.filter((o) => o.status === "cancelled");
@@ -102,13 +102,14 @@ export default function OrdersSection() {
   async function updateStatus(orderId: string, newStatus: string) {
     setUpdatingId(orderId);
     const res = await fetch(`/api/admin/orders/${orderId}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     });
     if (res.ok) {
-      const updated: Order = await res.json();
-      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+      );
     }
     setUpdatingId(null);
   }
