@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from "@/lib/utils";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 const orderItemSchema = z.object({
   productId: z.string().min(1),
@@ -138,6 +139,23 @@ export async function POST(req: NextRequest) {
           create: normalizedItems,
         },
       },
+    });
+
+    // Send order confirmation email (fire-and-forget)
+    void sendOrderConfirmationEmail(customerEmail, {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customerName,
+      customerEmail,
+      shippingType,
+      address: address ?? null,
+      city: city ?? null,
+      region: region ?? null,
+      paymentMethod,
+      subtotal,
+      shipping,
+      total,
+      items: normalizedItems,
     });
 
     return NextResponse.json({

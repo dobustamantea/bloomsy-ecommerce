@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { normalizeEmail } from "@/lib/auth-helpers";
+import { sendNewsletterWelcomeEmail } from "@/lib/email";
 
 const newsletterSchema = z.object({
   email: z
@@ -42,6 +43,9 @@ export async function POST(req: NextRequest) {
         email,
       },
     });
+
+    // Send newsletter welcome email (fire-and-forget)
+    void sendNewsletterWelcomeEmail(email);
 
     return NextResponse.json({
       success: true,

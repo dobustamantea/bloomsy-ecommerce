@@ -54,6 +54,7 @@ export const adminOrderStatusSchema = z.object({
     "delivered",
     "cancelled",
   ]),
+  trackingNumber: z.string().trim().optional(),
 });
 
 export const adminOrderStatuses = adminOrderStatusSchema.shape.status.options;
