@@ -24,7 +24,8 @@ export async function GET() {
     for (const v of allVariants) {
       stockByProduct.set(v.productId, (stockByProduct.get(v.productId) ?? 0) + v.stock);
     }
-    const lowStockProducts = [...stockByProduct.values()].filter((s) => s < 5).length;
+    let lowStockProducts = 0;
+    stockByProduct.forEach((stock) => { if (stock < 5) lowStockProducts++; });
 
     return NextResponse.json({
       totalProducts,
