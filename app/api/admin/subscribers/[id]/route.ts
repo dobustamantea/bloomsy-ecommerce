@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/admin-auth";
 
-export async function DELETE(
-  _: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
+
+export async function DELETE(_: NextRequest, { params }: RouteContext) {
+  const session = await getAdminSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 403 });
+  }
+
   try {
-    await prisma.subscriber.delete({ where: { id } });
+    await prisma.subscriber.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: "Error deleting subscriber" }, { status: 500 });
+  } catch (error) {
+    console.error("[DELETE /api/admin/subscribers/[id]] error:", error);
+    return NextResponse.json(
+      { error: "No fue posible eliminar el suscriptor." },
+      { status: 500 }
+    );
   }
 }

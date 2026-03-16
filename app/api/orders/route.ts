@@ -141,8 +141,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send order confirmation email (fire-and-forget)
-    void sendOrderConfirmationEmail(customerEmail, {
+    // Send order confirmation email
+    await sendOrderConfirmationEmail(customerEmail, {
       id: order.id,
       orderNumber: order.orderNumber,
       customerName,
