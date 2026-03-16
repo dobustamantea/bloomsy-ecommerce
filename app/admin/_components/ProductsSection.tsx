@@ -10,6 +10,7 @@ import {
   Loader2,
   ImageIcon,
 } from "lucide-react";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -639,59 +640,11 @@ export default function ProductsSection() {
               open={openSections.has("photos")}
               onToggle={() => toggleSection("photos")}
             >
-              <div className="space-y-3">
-                {form.images.map((url, i) => (
-                  <div key={i} className="space-y-1.5">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={url}
-                        onChange={(e) => {
-                          const imgs = [...form.images];
-                          imgs[i] = e.target.value;
-                          updateForm("images", imgs);
-                        }}
-                        placeholder="https://..."
-                        className="flex-1 border border-black/20 px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-black"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => updateForm("images", form.images.filter((_, j) => j !== i))}
-                        className="text-black/25 hover:text-red-500 px-2"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                    {url && (
-                      <div className="h-20 w-20 border border-black/10 overflow-hidden bg-gray-50 flex items-center justify-center">
-                        <img
-                          src={url}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const el = e.currentTarget;
-                            el.style.display = "none";
-                            const parent = el.parentElement;
-                            if (parent && !parent.querySelector("span")) {
-                              const span = document.createElement("span");
-                              span.className = "text-xs text-red-400";
-                              span.textContent = "URL inválida";
-                              parent.appendChild(span);
-                            }
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => updateForm("images", [...form.images, ""])}
-                  className="text-xs text-black/45 hover:text-black flex items-center gap-1"
-                >
-                  <Plus size={12} /> Agregar foto
-                </button>
-              </div>
+              <ImageUploader
+                photos={form.images}
+                productSlug={form.slug}
+                onChange={(urls) => updateForm("images", urls)}
+              />
             </AccordionItem>
 
             {/* Variantes */}
