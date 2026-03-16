@@ -6,6 +6,7 @@ import {
   normalizeEmail,
   registerSchema,
 } from "@/lib/auth-helpers";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -48,6 +49,9 @@ export async function POST(req: Request) {
             passwordHash,
           },
         });
+
+    // Send welcome email (fire-and-forget)
+    void sendWelcomeEmail(user.email, getDisplayName(user.name, user.email));
 
     return NextResponse.json({
       ok: true,
