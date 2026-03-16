@@ -7,7 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
 import ComingSoonModal from "@/components/ComingSoonModal";
-import AuthSessionProvider from "@/components/providers/AuthSessionProvider";
+import ConditionalNavigation from "@/components/layout/ConditionalNavigation";
 import { STORE_CONFIG } from "@/config/site";
 
 const cormorant = Cormorant_Garamond({
@@ -61,15 +61,14 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${cormorant.variable} ${dmSans.variable}`}>
       <body className="min-h-screen flex flex-col bg-bloomsy-cream text-bloomsy-black">
-        <AuthSessionProvider>
-          {STORE_CONFIG.isComingSoon && <ComingSoonBanner />}
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          {STORE_CONFIG.isComingSoon && <ComingSoonModal />}
-          <Analytics />
-          <SpeedInsights />
-        </AuthSessionProvider>
+        <ConditionalNavigation
+          banner={STORE_CONFIG.isComingSoon ? <ComingSoonBanner /> : null}
+          nav={<Navbar />}
+          footer={<Footer />}
+          modal={STORE_CONFIG.isComingSoon ? <ComingSoonModal /> : null}
+        >
+          {children}
+        </ConditionalNavigation>
       </body>
     </html>
   );

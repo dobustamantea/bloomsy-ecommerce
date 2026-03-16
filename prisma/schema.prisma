@@ -170,3 +170,10 @@ model Subscriber {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model Color {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  hex       String
+  createdAt DateTime @default(now())
+}
