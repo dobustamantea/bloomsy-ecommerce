@@ -1,0 +1,153 @@
+import { Resend } from "resend";
+import { render } from "@react-email/components";
+import WelcomeEmail from "@/emails/WelcomeEmail";
+import OrderConfirmationEmail from "@/emails/OrderConfirmationEmail";
+import OrderDispatchedEmail from "@/emails/OrderDispatchedEmail";
+import PasswordResetEmail from "@/emails/PasswordResetEmail";
+import NewsletterWelcomeEmail from "@/emails/NewsletterWelcomeEmail";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface OrderEmailData {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  shippingType: "delivery" | "pickup";
+  address?: string | null;
+  city?: string | null;
+  region?: string | null;
+  paymentMethod: "webpay" | "transfer";
+  subtotal: number;
+  shipping: number;
+  total: number;
+  items: {
+    name: string;
+    size: string;
+    color: string;
+    quantity: number;
+    price: number;
+  }[];
+}
+
+// ─── Client (singleton safe for serverless) ───────────────────────────────────
+
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+  return new Resend(key);
+}
+
+const FROM = "Bloomsy <hola@bloomsy.cl>";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function generatePromoCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({ length: 8 }, () =>
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join("");
+}
+
+async function sendEmail(options: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<void> {
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+    if (error) {
+      console.error("[email] Resend error:", error);
+    }
+  } catch (err) {
+    // Never let email failures crash the main request
+    console.error("[email] send failed:", err);
+  }
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+export async function sendWelcomeEmail(email: string, name: string): Promise<void> {
+  const html = await render(WelcomeEmail({ name }));
+  await sendEmail({
+    to: email,
+    subject: `Bienvenida a Bloomsy, ${name} 🌸`,
+    html,
+  });
+}
+
+export async function sendOrderConfirmationEmail(
+  email: string,
+  order: OrderEmailData
+): Promise<void> {
+  const html = await render(
+    OrderConfirmationEmail({
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      orderId: order.id,
+      items: order.items,
+      subtotal: order.subtotal,
+      shipping: order.shipping,
+      total: order.total,
+      shippingType: order.shippingType,
+      address: order.address,
+      city: order.city,
+      region: order.region,
+      paymentMethod: order.paymentMethod,
+    })
+  );
+  await sendEmail({
+    to: email,
+    subject: `Tu pedido ${order.orderNumber} fue recibido ✅`,
+    html,
+  });
+}
+
+export async function sendOrderDispatchedEmail(
+  email: string,
+  order: Pick<OrderEmailData, "customerName" | "orderNumber">,
+  trackingNumber?: string | null
+): Promise<void> {
+  const html = await render(
+    OrderDispatchedEmail({
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      trackingNumber,
+    })
+  );
+  await sendEmail({
+    to: email,
+    subject: `Tu pedido ${order.orderNumber} está en camino 🚚`,
+    html,
+  });
+}
+
+export async function sendPasswordResetEmail(
+  email: string,
+  resetToken: string
+): Promise<void> {
+  const html = await render(PasswordResetEmail({ resetToken }));
+  await sendEmail({
+    to: email,
+    subject: "Restablecer tu contraseña en Bloomsy",
+    html,
+  });
+}
+
+export async function sendNewsletterWelcomeEmail(email: string): Promise<void> {
+  const promoCode = generatePromoCode();
+  const html = await render(NewsletterWelcomeEmail({ promoCode }));
+  await sendEmail({
+    to: email,
+    subject: "¡Bienvenida a Bloomsy! Aquí tienes tu 10% de descuento 🌸",
+    html,
+  });
+}
