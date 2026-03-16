@@ -37,6 +37,7 @@ function mapProduct(p: NonNullable<PrismaProduct>): Product {
     originalPrice: p.originalPrice ?? undefined,
     colors:       Array.from(colorMap.values()),
     sizes:        Array.from(sizeSet),
+    variants:     p.variants.map((v) => ({ size: v.size, color: v.color, stock: v.stock })),
     images:       p.images.sort((a, b) => a.position - b.position).map((i) => i.url),
     description:  p.description,
     care:         p.care,

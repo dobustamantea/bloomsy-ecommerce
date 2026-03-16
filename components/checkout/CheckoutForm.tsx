@@ -88,24 +88,19 @@ export default function CheckoutForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerName:  data.name,
+          customerName: data.name,
           customerEmail: data.email,
           customerPhone: data.phone,
-          shippingType:  data.deliveryType,
-          address:       data.address,
-          city:          data.city,
-          region:        data.region,
+          shippingType: data.deliveryType,
+          address: data.address,
+          city: data.city,
+          region: data.region,
           paymentMethod: data.paymentMethod,
-          subtotal,
-          shipping: shippingCost,
-          total,
           items: items.map((item) => ({
             productId: item.product.id,
-            name:      item.product.name,
-            size:      item.size,
-            color:     item.color.name,
-            price:     item.product.price,
-            quantity:  item.quantity,
+            size: item.size,
+            color: item.color.name,
+            quantity: item.quantity,
           })),
         }),
       });
@@ -128,19 +123,35 @@ export default function CheckoutForm() {
         region:        data.region     ?? "",
         postalCode:    data.postalCode ?? "",
         paymentMethod: data.paymentMethod,
-        subtotal,
-        shippingCost,
-        total,
-        items: items.map((item) => ({
-          name:      item.product.name,
-          slug:      item.product.slug,
-          image:     item.product.images[0],
-          size:      item.size,
-          colorName: item.color.name,
-          colorHex:  item.color.hex,
-          price:     item.product.price,
-          quantity:  item.quantity,
-        })),
+        subtotal: json.subtotal ?? subtotal,
+        shippingCost: json.shipping ?? shippingCost,
+        total: json.total ?? total,
+        items: items.map((item) => {
+          const serverItem = json.items?.find(
+            (entry: {
+              productId: string;
+              name: string;
+              size: string;
+              color: string;
+              price: number;
+              quantity: number;
+            }) =>
+              entry.productId === item.product.id &&
+              entry.size === item.size &&
+              entry.color === item.color.name
+          );
+
+          return {
+            name: serverItem?.name ?? item.product.name,
+            slug: item.product.slug,
+            image: item.product.images[0],
+            size: item.size,
+            colorName: item.color.name,
+            colorHex: item.color.hex,
+            price: serverItem?.price ?? item.product.price,
+            quantity: serverItem?.quantity ?? item.quantity,
+          };
+        }),
         orderNumber: json.orderNumber,
       });
 
@@ -250,8 +261,8 @@ export default function CheckoutForm() {
                   </p>
                   <p className="text-[11px] text-black/40 mt-0.5">
                     {subtotal >= FREE_SHIPPING_THRESHOLD
-                      ? "Gratis · StarKen · 3–5 días hábiles"
-                      : `$3.990 · StarKen · 3–5 días hábiles · Gratis sobre $65.000`}
+                      ? "Gratis · Starken · 3–5 días hábiles"
+                      : `$3.990 · Starken · 3–5 días hábiles · Gratis sobre $50.000`}
                   </p>
                 </div>
               </label>

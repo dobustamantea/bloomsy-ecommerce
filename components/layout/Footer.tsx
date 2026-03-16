@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Instagram, Mail, Phone } from "lucide-react";
 import NewsletterForm from "./NewsletterForm";
+import FeatureStrip from "./FeatureStrip";
 
 const SHOP_LINKS = [
   { label: "Ver todo", href: "/shop" },
@@ -26,6 +27,8 @@ const LEGAL_LINKS = [
 export default function Footer() {
   return (
     <footer className="bg-bloomsy-black text-bloomsy-cream mt-auto">
+      <FeatureStrip />
+
       {/* Newsletter band */}
       <div className="border-b border-white/10">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-10 md:py-14 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -162,9 +165,9 @@ export default function Footer() {
               Envíos
             </p>
             <p className="text-xs text-white/50 leading-relaxed">
-              Todo Chile vía StarKen
+              Todo Chile vía Starken
               <br />
-              $3.990 · Gratis sobre $65.000
+              $3.990 · Gratis sobre $50.000
               <br />
               3–5 días hábiles
             </p>

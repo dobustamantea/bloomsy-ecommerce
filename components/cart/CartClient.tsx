@@ -6,6 +6,16 @@ import { ShoppingBag, X, Minus, Plus, Truck, CheckCircle2 } from "lucide-react";
 import { useCartStore, selectTotal } from "@/store/useCartStore";
 import { formatCLP, SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import type { CartItem } from "@/types";
+
+/** Stock disponible para un ítem del carrito. Infinity = sin datos (fallback). */
+function getItemStock(item: CartItem): number {
+  if (item.product.variants.length === 0) return Infinity;
+  const v = item.product.variants.find(
+    (v) => v.color === item.color.name && v.size === item.size
+  );
+  return v?.stock ?? 0;
+}
 
 export default function CartClient() {
   const items = useCartStore((s) => s.items);
@@ -63,6 +73,8 @@ export default function CartClient() {
         <div className="flex-1 min-w-0 space-y-0 divide-y divide-black/8 border-y border-black/10">
           {items.map((item) => {
             const linePrice = item.product.price * item.quantity;
+            const itemStock = getItemStock(item);
+            const atMax = item.quantity >= itemStock;
             return (
               <div
                 key={`${item.product.id}-${item.size}-${item.color.name}`}
@@ -156,6 +168,7 @@ export default function CartClient() {
                       </span>
                       <button
                         onClick={() =>
+                          !atMax &&
                           updateQuantity(
                             item.product.id,
                             item.size,
@@ -163,8 +176,14 @@ export default function CartClient() {
                             item.quantity + 1
                           )
                         }
+                        disabled={atMax}
                         aria-label="Aumentar cantidad"
-                        className="w-7 h-7 border border-black/20 flex items-center justify-center hover:border-bloomsy-black hover:text-bloomsy-black transition-colors"
+                        className={cn(
+                          "w-7 h-7 border border-black/20 flex items-center justify-center transition-colors",
+                          atMax
+                            ? "text-black/20 cursor-not-allowed"
+                            : "hover:border-bloomsy-black hover:text-bloomsy-black"
+                        )}
                       >
                         <Plus size={11} />
                       </button>

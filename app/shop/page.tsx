@@ -21,6 +21,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   return (
     <ShopClient
+      key={searchParams.categoria ?? "all"}
       products={products}
       initialCategory={searchParams.categoria}
     />

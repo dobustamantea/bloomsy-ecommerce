@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -26,24 +28,24 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bloomsy — High Modern Style",
+    default: "Bloomsy - High Modern Style",
     template: "%s | Bloomsy",
   },
   description:
-    "Ropa femenina chilena con actitud. Tallas S a 4XL. Envíos a todo Chile.",
+    "Ropa femenina chilena con actitud. Tallas S a 4XL. Envios a todo Chile.",
   keywords: ["ropa femenina", "tallas curvy", "moda Chile", "bloomsy"],
   openGraph: {
     type: "website",
     locale: "es_CL",
     url: "https://bloomsy.cl",
     siteName: "Bloomsy",
-    title: "Bloomsy — High Modern Style",
+    title: "Bloomsy - High Modern Style",
     description:
-      "Ropa femenina chilena con actitud. Tallas S a 4XL. Envíos a todo Chile.",
+      "Ropa femenina chilena con actitud. Tallas S a 4XL. Envios a todo Chile.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bloomsy — High Modern Style",
+    title: "Bloomsy - High Modern Style",
     description: "Ropa femenina chilena con actitud. Tallas S a 4XL.",
   },
   icons: {

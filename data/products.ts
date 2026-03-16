@@ -1,4 +1,4 @@
-import type { Product } from "@/types";
+﻿import type { Product } from "@/types";
 
 const img = (id: string) =>
   `https://images.unsplash.com/photo-${id}?w=800&q=80&fit=crop`;
@@ -17,6 +17,7 @@ export const products: Product[] = [
       { name: "Gris", hex: "#9B9B9B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL", "4XL"],
+    variants: [],
     images: [
       img("1515886657613-9f3515b0c78f"),
       img("1483985988355-763728e1935b"),
@@ -59,6 +60,7 @@ export const products: Product[] = [
       { name: "Negro", hex: "#000000" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL"],
+    variants: [],
     images: [
       img("1525507119028-ed4c629a60a3"),
       img("1558618666-fcd25c85cd64"),
@@ -95,6 +97,7 @@ export const products: Product[] = [
       { name: "Beige", hex: "#EFECDA" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL", "4XL"],
+    variants: [],
     images: [
       img("1572804013427-4d7ca7268217"),
       img("1539109136881-3be0616acf4b"),
@@ -138,6 +141,7 @@ export const products: Product[] = [
       { name: "Blanco", hex: "#FFFFFF" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL"],
+    variants: [],
     images: [
       img("1564257631407-4deb1f99d992"),
       img("1583743814966-8d4f4c47c2b6"),
@@ -173,6 +177,7 @@ export const products: Product[] = [
       { name: "Negro", hex: "#000000" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL"],
+    variants: [],
     images: [
       img("1487222477099-a33fc91f7c35"),
       img("1488161628813-04466f872be2"),
@@ -216,6 +221,7 @@ export const products: Product[] = [
       { name: "Azul", hex: "#2C3E6B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL", "4XL"],
+    variants: [],
     images: [
       img("1583743814966-8d4f4c47c2b6"),
       img("1554568218-0f1715e72254"),
@@ -252,6 +258,7 @@ export const products: Product[] = [
       { name: "Café", hex: "#6B4C3B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL", "4XL"],
+    variants: [],
     images: [
       img("1567401893414-76b7b1e5a7a5"),
       img("1539109136881-3be0616acf4b"),
@@ -294,6 +301,7 @@ export const products: Product[] = [
       { name: "Gris", hex: "#9B9B9B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL"],
+    variants: [],
     images: [
       img("1558618666-fcd25c85cd64"),
       img("1525507119028-ed4c629a60a3"),
@@ -331,6 +339,7 @@ export const products: Product[] = [
       { name: "Azul", hex: "#2C3E6B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL", "4XL"],
+    variants: [],
     images: [
       img("1594938298603-c8148c4dae35"),
       img("1564257631407-4deb1f99d992"),
@@ -372,6 +381,7 @@ export const products: Product[] = [
       { name: "Beige", hex: "#EFECDA" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL"],
+    variants: [],
     images: [
       img("1572804013427-4d7ca7268217"),
       img("1558618666-fcd25c85cd64"),
@@ -409,6 +419,7 @@ export const products: Product[] = [
       { name: "Beige", hex: "#EFECDA" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL"],
+    variants: [],
     images: [
       img("1539109136881-3be0616acf4b"),
       img("1525507119028-ed4c629a60a3"),
@@ -446,6 +457,7 @@ export const products: Product[] = [
       { name: "Café", hex: "#6B4C3B" },
     ],
     sizes: ["Talla Única", "0XL", "1XL", "2XL"],
+    variants: [],
     images: [
       img("1583743814966-8d4f4c47c2b6"),
       img("1567401893414-76b7b1e5a7a5"),
@@ -488,6 +500,7 @@ export const products: Product[] = [
       { name: "Azul", hex: "#2C3E6B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL"],
+    variants: [],
     images: [
       img("1488161628813-04466f872be2"),
       img("1594938298603-c8148c4dae35"),
@@ -525,6 +538,7 @@ export const products: Product[] = [
       { name: "Rojo", hex: "#C0392B" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL", "3XL", "4XL"],
+    variants: [],
     images: [
       img("1515886657613-9f3515b0c78f"),
       img("1483985988355-763728e1935b"),
@@ -566,6 +580,7 @@ export const products: Product[] = [
       { name: "Negro", hex: "#000000" },
     ],
     sizes: ["S", "M", "L", "XL", "XXL", "0XL", "1XL", "2XL"],
+    variants: [],
     images: [
       img("1572804013427-4d7ca7268217"),
       img("1558618666-fcd25c85cd64"),
@@ -594,6 +609,8 @@ export const products: Product[] = [
 export const CATEGORIES: { value: string; label: string }[] = [
   { value: "poleras", label: "Poleras" },
   { value: "tops", label: "Tops" },
+  { value: "camisas", label: "Camisas" },
+  { value: "blusas", label: "Blusas" },
   { value: "faldas", label: "Faldas" },
   { value: "abrigos", label: "Abrigos" },
   { value: "pantalones", label: "Pantalones" },

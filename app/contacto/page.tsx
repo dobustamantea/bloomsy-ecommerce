@@ -62,10 +62,10 @@ const INFO = [
     content: (
       <div className="flex flex-col gap-0.5">
         <span className="text-[15px] text-black/70">
-          Despachamos a todo Chile vía StarKen
+          Despachamos a todo Chile vía Starken
         </span>
         <span className="text-[12px] text-black/40 leading-relaxed">
-          $3.990 · Gratis sobre $65.000 · 3–5 días hábiles
+          $3.990 · Gratis sobre $50.000 · 3–5 días hábiles
         </span>
       </div>
     ),

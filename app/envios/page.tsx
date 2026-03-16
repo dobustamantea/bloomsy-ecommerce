@@ -5,14 +5,14 @@ import { Truck, MapPin, CheckCircle2, Search, AlertCircle, Mail, Phone } from "l
 export const metadata: Metadata = {
   title: "Política de envíos — Bloomsy",
   description:
-    "Enviamos a todo Chile vía StarKen. Costo $3.990, gratis sobre $65.000. Plazo 3–5 días hábiles.",
+    "Enviamos a todo Chile vía Starken. Costo $3.990, gratis sobre $50.000. Plazo 3–5 días hábiles.",
 };
 
 /* ── Pasos del proceso ───────────────────────────────────────────── */
 const PASOS = [
   "Realizas tu pedido en bloomsy.cl",
   "Confirmamos y preparamos tu orden (1–2 días hábiles)",
-  "StarKen recoge el paquete",
+  "Starken recoge el paquete",
   "Recibes tu pedido en 3–5 días hábiles",
 ];
 
@@ -71,7 +71,7 @@ export default function EnviosPage() {
                   <p className="text-[10px] tracking-[0.3em] uppercase text-bloomsy-cream/40 mb-1">
                     Despacho a domicilio
                   </p>
-                  <p className="font-display text-[28px] font-light">StarKen</p>
+                  <p className="font-display text-[28px] font-light">Starken</p>
                 </div>
                 <ul className="flex flex-col gap-2 text-[13px] text-bloomsy-cream/75">
                   <li className="flex items-start gap-2">
@@ -81,7 +81,7 @@ export default function EnviosPage() {
                   <li className="flex items-start gap-2">
                     <span className="text-bloomsy-cream/35 mt-0.5">—</span>
                     <span>
-                      <strong className="text-bloomsy-cream font-medium">Gratis</strong> en compras sobre $65.000
+                      <strong className="text-bloomsy-cream font-medium">Gratis</strong> en compras sobre $50.000
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
@@ -165,7 +165,7 @@ export default function EnviosPage() {
           <Section icon={Search} title="Seguimiento de tu pedido">
             <p className="text-[14px] text-black/60 leading-relaxed mb-3">
               Una vez despachado tu pedido, te enviaremos el número de seguimiento
-              de StarKen a tu email para que puedas rastrear tu entrega en tiempo
+              de Starken a tu email para que puedas rastrear tu entrega en tiempo
               real.
             </p>
             <Link

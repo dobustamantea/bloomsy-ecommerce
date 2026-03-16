@@ -43,10 +43,8 @@ const VALUES = [
   },
   {
     Icon: MapPin,
-    // EDITAR: título del valor 3
-    title: "Orgullo chileno",
-    // EDITAR: descripción del valor 3
-    text: "Somos una marca chilena, para mujeres chilenas. Enviamos a todo el país y celebramos la diversidad de nuestra clienta.",
+    title: "Argentina en Chile",
+    text: "Fundada por una mendocina enamorada de Chile. Bloomsy mezcla la energía cuyana con el espíritu chileno: enviamos a todo el país y celebramos la diversidad de nuestra clienta.",
   },
 ];
 
@@ -55,29 +53,20 @@ const VALUES = [
 const TEAM = [
   {
     initial: "J",
-    // EDITAR: nombre completo de Julieta
-    name: "Julieta [Apellido]",
-    // EDITAR: rol
+    name: "Julieta Rosalez",
     role: "Fundadora & Directora Creativa",
-    // EDITAR: Instagram handle
     instagram: "@bloomsy.cl",
   },
   {
-    initial: "C",
-    // EDITAR: nombre completo
-    name: "[Nombre] [Apellido]",
-    // EDITAR: rol
-    role: "Fotografía & Contenido",
-    // EDITAR: Instagram handle (dejar vacío si no aplica)
+    initial: "D",
+    name: "Daniel Bustamante",
+    role: "Web & Fotografía",
     instagram: "",
   },
   {
     initial: "A",
-    // EDITAR: nombre completo
-    name: "[Nombre] [Apellido]",
-    // EDITAR: rol
+    name: "Andrea Rosalez",
     role: "Atención al Cliente",
-    // EDITAR: Instagram handle (dejar vacío si no aplica)
     instagram: "",
   },
 ];
@@ -106,10 +95,10 @@ export default function AboutPage() {
                 de una idea simple
               </h1>
 
-              {/* EDITAR: párrafo introductorio */}
               <p className="text-[15px] md:text-base text-black/65 leading-relaxed max-w-xl">
                 Creemos que la moda debe ser para todas. Sin importar la talla,
-                el presupuesto ni el momento. Bloomsy es ropa chilena hecha con
+                el presupuesto ni el momento. Bloomsy nació del cruce entre la
+                energía mendocina y el espíritu chileno: ropa hecha con
                 intención, para mujeres reales con estilo y actitud.
               </p>
             </div>
@@ -153,29 +142,27 @@ export default function AboutPage() {
                 La fundadora
               </p>
 
-              {/* EDITAR: nombre completo de Julieta */}
               <h2 className="font-display text-[40px] md:text-[48px] font-light text-bloomsy-cream mb-1">
-                Julieta [Apellido]
+                Julieta Rosalez
               </h2>
 
-              {/* EDITAR: cargo */}
               <p className="text-[12px] tracking-widest uppercase text-bloomsy-cream/45 mb-7">
                 Fundadora &amp; Directora Creativa
               </p>
 
-              {/* EDITAR: párrafo 1 sobre Julieta */}
               <p className="text-[15px] text-bloomsy-cream/70 leading-relaxed mb-4 max-w-2xl">
-                Julieta siempre supo que quería crear algo propio. Con años de
-                experiencia en moda y un ojo afinado para el estilo, fundó
-                Bloomsy con una visión clara: democratizar la moda femenina en
-                Chile.
+                Argentina de corazón, chilena de adopción. Julieta llegó a Chile
+                con una maleta llena de ideas y la convicción de que la moda
+                debía ser para todas. Fundó Bloomsy con una visión clara:
+                ofrecer ropa con estilo real, en tallas reales, sin los precios
+                imposibles de las grandes marcas.
               </p>
 
-              {/* EDITAR: párrafo 2 sobre Julieta */}
               <p className="text-[15px] text-bloomsy-cream/70 leading-relaxed max-w-2xl">
-                Cada pieza de Bloomsy pasa por sus manos. Desde la elección de
-                telas hasta la última foto del catálogo, Julieta cuida cada
-                detalle para que tú te sientas increíble.
+                Cada pieza de Bloomsy pasa por sus manos. Desde la selección de
+                las prendas hasta el último detalle del catálogo, Julieta cuida
+                que cada look cuente una historia y que tú te sientas increíble
+                al contarla.
               </p>
             </div>
           </div>

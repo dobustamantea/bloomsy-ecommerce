@@ -7,6 +7,16 @@ import { X, Minus, Plus, ShoppingBag, CheckCircle2, Truck } from "lucide-react";
 import { useCartStore, selectTotal } from "@/store/useCartStore";
 import { formatCLP, SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import type { CartItem } from "@/types";
+
+/** Stock disponible para un ítem del carrito. Infinity = sin datos (fallback). */
+function getItemStock(item: CartItem): number {
+  if (item.product.variants.length === 0) return Infinity;
+  const v = item.product.variants.find(
+    (v) => v.color === item.color.name && v.size === item.size
+  );
+  return v?.stock ?? 0;
+}
 
 interface CartDrawerProps {
   open: boolean;
@@ -84,12 +94,13 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4">
             <ShoppingBag size={44} strokeWidth={1} className="text-black/15" />
             <p className="text-sm text-black/50">Tu carrito está vacío</p>
-            <button
+            <Link
+              href="/shop"
               onClick={onClose}
               className="text-[11px] tracking-widest uppercase border border-bloomsy-black px-8 py-2.5 hover:bg-bloomsy-black hover:text-bloomsy-cream transition-colors"
             >
               Explorar tienda
-            </button>
+            </Link>
           </div>
         ) : (
           <>
@@ -125,7 +136,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 </div>
               </div>
 
-              {items.map((item) => (
+              {items.map((item) => {
+                const itemStock = getItemStock(item);
+                const atMax = item.quantity >= itemStock;
+                return (
                 <div
                   key={`${item.product.id}-${item.size}-${item.color.name}`}
                   className="flex gap-3 py-4"
@@ -203,6 +217,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         </span>
                         <button
                           onClick={() =>
+                            !atMax &&
                             updateQuantity(
                               item.product.id,
                               item.size,
@@ -210,8 +225,14 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                               item.quantity + 1
                             )
                           }
+                          disabled={atMax}
                           aria-label="Aumentar"
-                          className="w-6 h-6 border border-black/20 flex items-center justify-center hover:border-bloomsy-black"
+                          className={cn(
+                            "w-6 h-6 border border-black/20 flex items-center justify-center",
+                            atMax
+                              ? "text-black/15 cursor-not-allowed"
+                              : "hover:border-bloomsy-black"
+                          )}
                         >
                           <Plus size={9} />
                         </button>
@@ -219,7 +240,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* ── Footer ────────────────────────────────────── */}
