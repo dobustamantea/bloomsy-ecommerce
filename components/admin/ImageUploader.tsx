@@ -66,8 +66,8 @@ function makeId() {
 }
 
 function photosToItems(urls: string[]): Item[] {
-  return urls.map((url) => ({
-    id: url || makeId(),
+  return urls.filter(Boolean).map((url) => ({
+    id: url,
     preview: url,
     url,
     status: "done",
@@ -88,11 +88,16 @@ export default function ImageUploader({
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   // Propagate done URLs to parent whenever items change.
-  // Using a ref for onChange to avoid adding it as a dependency.
+  // Skip the very first render to avoid marking form as dirty on product selection.
   const onChangeRef = useRef(onChange);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const doneUrls = items
       .filter((i) => i.status === "done")
       .map((i) => i.url);
