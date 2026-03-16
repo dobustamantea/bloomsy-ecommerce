@@ -51,7 +51,9 @@ export async function POST(req: Request) {
         });
 
     // Send welcome email (fire-and-forget)
-    void sendWelcomeEmail(user.email, getDisplayName(user.name, user.email));
+    if (user.email) {
+      void sendWelcomeEmail(user.email, getDisplayName(user.name, user.email));
+    }
 
     return NextResponse.json({
       ok: true,
