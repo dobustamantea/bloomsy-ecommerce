@@ -87,12 +87,17 @@ export default function ImageUploader({
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
-  // Sync when the parent changes photos (e.g., different product selected)
-  const photosKey = photos.join("|");
+  // Propagate done URLs to parent whenever items change.
+  // Using a ref for onChange to avoid adding it as a dependency.
+  const onChangeRef = useRef(onChange);
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+
   useEffect(() => {
-    setItems(photosToItems(photos));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [photosKey]);
+    const doneUrls = items
+      .filter((i) => i.status === "done")
+      .map((i) => i.url);
+    onChangeRef.current(doneUrls);
+  }, [items]);
 
   // Revoke any leftover local blob URLs on unmount
   useEffect(() => {
@@ -106,17 +111,11 @@ export default function ImageUploader({
 
   // ── State helpers ────────────────────────────────────────────────────────────
 
-  function publish(updated: Item[]) {
-    onChange(updated.filter((i) => i.status === "done").map((i) => i.url));
-  }
-
   function removeItem(id: string) {
     setItems((prev) => {
       const target = prev.find((i) => i.id === id);
       if (target?.isLocal) URL.revokeObjectURL(target.preview);
-      const updated = prev.filter((i) => i.id !== id);
-      publish(updated);
-      return updated;
+      return prev.filter((i) => i.id !== id);
     });
   }
 
@@ -165,8 +164,8 @@ export default function ImageUploader({
         const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
         const publicUrl = data.publicUrl;
 
-        setItems((prev) => {
-          const updated = prev.map((item) =>
+        setItems((prev) =>
+          prev.map((item) =>
             item.id === placeholder.id
               ? {
                   ...item,
@@ -176,10 +175,8 @@ export default function ImageUploader({
                   isLocal: false,
                 }
               : item
-          );
-          publish(updated);
-          return updated;
-        });
+          )
+        );
 
         // Revoke local blob now that we have the real URL
         URL.revokeObjectURL(placeholder.preview);
@@ -244,7 +241,6 @@ export default function ImageUploader({
       const updated = [...prev];
       const [moved] = updated.splice(draggingIdx, 1);
       updated.splice(idx, 0, moved);
-      publish(updated);
       return updated;
     });
     setDraggingIdx(null);
