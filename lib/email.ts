@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { render } from "@react-email/components";
+import { prisma } from "@/lib/prisma";
 import WelcomeEmail from "@/emails/WelcomeEmail";
 import OrderConfirmationEmail from "@/emails/OrderConfirmationEmail";
 import OrderDispatchedEmail from "@/emails/OrderDispatchedEmail";
@@ -136,7 +137,29 @@ export async function sendPasswordResetEmail(
 }
 
 export async function sendNewsletterWelcomeEmail(email: string): Promise<void> {
-  const promoCode = generatePromoCode();
+  // Generate a unique code and save it to DB so it can be validated at checkout
+  let promoCode = generatePromoCode();
+  // Retry if code already exists (extremely unlikely but safe)
+  let attempts = 0;
+  while (attempts < 5) {
+    const existing = await prisma.discountCode.findUnique({ where: { code: promoCode } });
+    if (!existing) break;
+    promoCode = generatePromoCode();
+    attempts++;
+  }
+
+  await prisma.discountCode.create({
+    data: {
+      code: promoCode,
+      type: "PERCENTAGE",
+      value: 10,        // 10% off
+      maxUses: 1,       // one-time use only
+      isActive: true,
+      // Expires in 30 days
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
   const html = await render(NewsletterWelcomeEmail({ promoCode, logoUrl: LOGO_URL }));
   await sendEmail({
     to: email,
