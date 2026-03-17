@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth";
 import { adminOrderStatusSchema } from "@/lib/admin-schema";
 import { prisma } from "@/lib/prisma";
-import { sendOrderDispatchedEmail } from "@/lib/email";
+import { sendOrderDispatchedEmail, sendOrderReadyForPickupEmail } from "@/lib/email";
 
 interface RouteContext {
   params: {
@@ -37,13 +37,24 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       },
     });
 
-    // Trigger dispatch email when order is marked as shipped
+    // Trigger appropriate email when order is marked as shipped
     if (parsed.data.status === "shipped") {
-      void sendOrderDispatchedEmail(
-        order.customerEmail,
-        { customerName: order.customerName, orderNumber: order.orderNumber },
-        parsed.data.trackingNumber ?? null
-      );
+      const isPickup =
+        order.shippingType === "pickup" ||
+        order.shippingType?.toLowerCase().includes("retiro");
+
+      if (isPickup) {
+        void sendOrderReadyForPickupEmail(order.customerEmail, {
+          customerName: order.customerName,
+          orderNumber: order.orderNumber,
+        });
+      } else {
+        void sendOrderDispatchedEmail(
+          order.customerEmail,
+          { customerName: order.customerName, orderNumber: order.orderNumber },
+          parsed.data.trackingNumber ?? null
+        );
+      }
     }
 
     return NextResponse.json({ success: true });
