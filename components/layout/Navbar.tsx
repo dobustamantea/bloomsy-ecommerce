@@ -251,9 +251,15 @@ export default function Navbar() {
 
           <aside className="relative bg-bloomsy-cream w-72 max-w-full h-full flex flex-col shadow-2xl">
             <div className="flex items-center justify-between px-5 h-16 border-b border-black/10">
-              <span className="font-display text-xl tracking-[0.15em] uppercase">
-                Bloomsy
-              </span>
+              <Link href="/" onClick={() => setMobileOpen(false)}>
+                <Image
+                  src="https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png"
+                  alt="Bloomsy"
+                  width={320}
+                  height={96}
+                  className="h-5 w-auto object-contain"
+                />
+              </Link>
               <button onClick={() => setMobileOpen(false)} aria-label="Cerrar menu">
                 <X size={20} />
               </button>

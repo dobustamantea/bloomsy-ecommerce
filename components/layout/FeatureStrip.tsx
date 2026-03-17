@@ -32,7 +32,7 @@ export default function FeatureStrip() {
   return (
     <div className="border-t border-black/8 bg-bloomsy-cream text-bloomsy-black">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <div className="grid grid-cols-2 divide-x divide-black/8 md:grid-cols-4">
+        <div className="grid grid-cols-2 divide-x divide-y divide-black/8 md:grid-cols-4 md:divide-y-0">
           {FEATURES.map((feature) => {
             const Icon = feature.icon;
             return (
