@@ -7,7 +7,10 @@ import {
   Palette,
   Mail,
 } from "lucide-react";
+import Image from "next/image";
 import type { AdminSection } from "../page";
+
+const LOGO_SRC = "https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png";
 
 const NAV_ITEMS: { key: AdminSection; label: string; icon: React.ElementType }[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -50,12 +53,14 @@ export default function AdminNav({ section, onSectionChange, adminName, mobile }
     <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-black/10 bg-[#EFECDA]">
       {/* Logo */}
       <div className="px-6 py-5 border-b border-black/10">
-        <div
-          className="text-xl font-medium tracking-wide"
-          style={{ fontFamily: "var(--font-cormorant, serif)" }}
-        >
-          Bloomsy
-        </div>
+        <Image
+          src={LOGO_SRC}
+          alt="Bloomsy"
+          width={320}
+          height={96}
+          className="h-5 w-auto object-contain mb-1"
+          priority
+        />
         <div className="text-xs text-black/45 mt-0.5">
           Panel Admin · {adminName}
         </div>
