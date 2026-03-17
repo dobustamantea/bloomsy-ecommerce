@@ -21,6 +21,8 @@ const createOrderSchema = z.object({
   region: z.string().trim().optional(),
   paymentMethod: z.enum(["webpay", "transfer"]),
   items: z.array(orderItemSchema).min(1),
+  discountCodeId: z.string().optional().nullable(),
+  discountAmount: z.number().int().min(0).optional().default(0),
 });
 
 function generateOrderNumber(): string {
@@ -51,6 +53,8 @@ export async function POST(req: NextRequest) {
       region,
       paymentMethod,
       items,
+      discountCodeId,
+      discountAmount,
     } = parsed.data;
 
     if (shippingType === "delivery" && (!address || !city || !region)) {
@@ -113,32 +117,54 @@ export async function POST(req: NextRequest) {
       shippingType === "pickup" || subtotal >= FREE_SHIPPING_THRESHOLD
         ? 0
         : SHIPPING_COST;
-    const total = subtotal + shipping;
+    const discountAmt = discountAmount ?? 0;
+    const total = subtotal + shipping - discountAmt;
 
     let orderNumber = generateOrderNumber();
     while (await prisma.order.findUnique({ where: { orderNumber } })) {
       orderNumber = generateOrderNumber();
     }
 
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        customerName,
-        customerEmail,
-        customerPhone,
-        shippingType,
-        address: address ?? null,
-        city: city ?? null,
-        region: region ?? null,
-        paymentMethod,
-        subtotal,
-        shipping,
-        total,
-        status: "pending",
-        items: {
-          create: normalizedItems,
+    const order = await prisma.$transaction(async (tx) => {
+      // If discount code used, validate + increment usedCount atomically
+      if (discountCodeId) {
+        const discount = await tx.discountCode.findUnique({
+          where: { id: discountCodeId },
+        });
+        if (
+          discount &&
+          discount.isActive &&
+          (discount.maxUses === null || discount.usedCount < discount.maxUses)
+        ) {
+          await tx.discountCode.update({
+            where: { id: discountCodeId },
+            data: { usedCount: { increment: 1 } },
+          });
+        }
+      }
+
+      return tx.order.create({
+        data: {
+          orderNumber,
+          customerName,
+          customerEmail,
+          customerPhone,
+          shippingType,
+          address: address ?? null,
+          city: city ?? null,
+          region: region ?? null,
+          paymentMethod,
+          subtotal,
+          shipping,
+          total,
+          status: "pending",
+          discountCodeId: discountCodeId ?? null,
+          discountAmount: discountAmt > 0 ? discountAmt : null,
+          items: {
+            create: normalizedItems,
+          },
         },
-      },
+      });
     });
 
     // Send order confirmation email

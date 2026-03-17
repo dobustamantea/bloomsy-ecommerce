@@ -71,13 +71,73 @@ export default function CheckoutForm() {
   const deliveryType = watch("deliveryType");
   const paymentMethod = watch("paymentMethod");
 
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+
+  // Discount state
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountState, setDiscountState] = useState<{
+    applied: boolean;
+    discountCodeId: string;
+    discountAmount: number;
+    message: string | null;
+    error: string | null;
+    validating: boolean;
+  }>({
+    applied: false,
+    discountCodeId: "",
+    discountAmount: 0,
+    message: null,
+    error: null,
+    validating: false,
+  });
+
   const shippingFree =
     deliveryType === "pickup" || subtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingCost = shippingFree ? 0 : SHIPPING_COST;
-  const total = subtotal + shippingCost;
+  const total = subtotal + shippingCost - discountState.discountAmount;
 
-  const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState("");
+  async function applyDiscount() {
+    if (!discountCode.trim()) return;
+    setDiscountState((s) => ({ ...s, validating: true, error: null }));
+    const res = await fetch("/api/discount-codes/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: discountCode.trim(), orderTotal: subtotal }),
+    });
+    const data = await res.json();
+    if (data.valid) {
+      setDiscountState({
+        applied: true,
+        discountCodeId: data.discountCodeId,
+        discountAmount: data.discountAmount,
+        message: `Codigo aplicado — ${data.type === "PERCENTAGE" ? `${data.value}%` : formatCLP(data.discountAmount)} de descuento`,
+        error: null,
+        validating: false,
+      });
+    } else {
+      setDiscountState((s) => ({
+        ...s,
+        applied: false,
+        discountAmount: 0,
+        discountCodeId: "",
+        error: data.message ?? "Codigo no valido",
+        validating: false,
+      }));
+    }
+  }
+
+  function removeDiscount() {
+    setDiscountCode("");
+    setDiscountState({
+      applied: false,
+      discountCodeId: "",
+      discountAmount: 0,
+      message: null,
+      error: null,
+      validating: false,
+    });
+  }
 
   async function onSubmit(data: CheckoutFormValues) {
     setLoading(true);
@@ -96,6 +156,8 @@ export default function CheckoutForm() {
           city: data.city,
           region: data.region,
           paymentMethod: data.paymentMethod,
+          discountCodeId: discountState.discountCodeId || null,
+          discountAmount: discountState.discountAmount || 0,
           items: items.map((item) => ({
             productId: item.product.id,
             size: item.size,
@@ -598,6 +660,40 @@ export default function CheckoutForm() {
               ))}
             </ul>
 
+            {/* Discount code input */}
+            {!discountState.applied ? (
+              <div className="space-y-1.5">
+                <div className="flex gap-2">
+                  <input
+                    value={discountCode}
+                    onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyDiscount())}
+                    placeholder="Codigo de descuento"
+                    className="flex-1 border border-black/20 bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-black placeholder:text-black/30 font-mono tracking-widest"
+                    disabled={discountState.validating}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyDiscount}
+                    disabled={discountState.validating || !discountCode.trim()}
+                    className="text-[10px] tracking-widest uppercase border border-black/20 px-3 hover:bg-black hover:text-white hover:border-black transition-colors disabled:opacity-40"
+                  >
+                    {discountState.validating ? "..." : "Aplicar"}
+                  </button>
+                </div>
+                {discountState.error && (
+                  <p className="text-[11px] text-red-500">{discountState.error}</p>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-between bg-green-50 border border-green-200 px-3 py-2 rounded">
+                <span className="text-[11px] text-green-700">{discountState.message}</span>
+                <button type="button" onClick={removeDiscount} className="text-green-600 hover:text-green-800 text-xs ml-2 underline">
+                  Quitar
+                </button>
+              </div>
+            )}
+
             {/* Totals */}
             <div className="space-y-2.5">
               <div className="flex justify-between text-sm">
@@ -605,13 +701,19 @@ export default function CheckoutForm() {
                 <span>{formatCLP(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-black/60">Envío</span>
+                <span className="text-black/60">Envio</span>
                 {shippingFree ? (
                   <span className="text-green-700 font-medium">GRATIS</span>
                 ) : (
                   <span>{formatCLP(SHIPPING_COST)}</span>
                 )}
               </div>
+              {discountState.applied && discountState.discountAmount > 0 && (
+                <div className="flex justify-between text-sm text-green-700">
+                  <span>Descuento ({discountCode})</span>
+                  <span>-{formatCLP(discountState.discountAmount)}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-baseline border-t border-black/10 pt-4">

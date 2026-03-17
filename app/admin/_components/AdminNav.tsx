@@ -6,17 +6,24 @@ import {
   ShoppingBag,
   Palette,
   Mail,
+  Tag,
 } from "lucide-react";
 import Image from "next/image";
 import type { AdminSection } from "../page";
 
-const LOGO_SRC = "https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png";
+const LOGO_SRC =
+  "https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png";
 
-const NAV_ITEMS: { key: AdminSection; label: string; icon: React.ElementType }[] = [
+const NAV_ITEMS: {
+  key: AdminSection;
+  label: string;
+  icon: React.ElementType;
+}[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "products", label: "Productos", icon: Package },
   { key: "orders", label: "Pedidos", icon: ShoppingBag },
-  { key: "catalog", label: "Cat\u00E1logo", icon: Palette },
+  { key: "catalog", label: "Catalogo", icon: Palette },
+  { key: "discounts", label: "Descuentos", icon: Tag },
   { key: "subscribers", label: "Suscriptores", icon: Mail },
 ];
 
@@ -27,7 +34,12 @@ interface Props {
   mobile?: boolean;
 }
 
-export default function AdminNav({ section, onSectionChange, adminName, mobile }: Props) {
+export default function AdminNav({
+  section,
+  onSectionChange,
+  adminName,
+  mobile,
+}: Props) {
   if (mobile) {
     return (
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-black/10 bg-[#EFECDA]">
@@ -36,11 +48,14 @@ export default function AdminNav({ section, onSectionChange, adminName, mobile }
             <button
               key={key}
               onClick={() => onSectionChange(key)}
-              className={`flex-1 flex flex-col items-center py-2.5 gap-1 text-[10px] transition-colors ${
+              className={`flex-1 flex flex-col items-center py-2 gap-0.5 text-[9px] transition-colors ${
                 section === key ? "text-black" : "text-black/35"
               }`}
             >
-              <Icon size={20} strokeWidth={section === key ? 2 : 1.5} />
+              <Icon
+                size={18}
+                strokeWidth={section === key ? 2 : 1.5}
+              />
               <span className="leading-none">{label.split(" ")[0]}</span>
             </button>
           ))}
@@ -51,7 +66,6 @@ export default function AdminNav({ section, onSectionChange, adminName, mobile }
 
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-black/10 bg-[#EFECDA]">
-      {/* Logo */}
       <div className="px-6 py-5 border-b border-black/10">
         <Image
           src={LOGO_SRC}
@@ -66,7 +80,6 @@ export default function AdminNav({ section, onSectionChange, adminName, mobile }
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 py-4 px-3 overflow-y-auto">
         {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
           <button
@@ -84,7 +97,6 @@ export default function AdminNav({ section, onSectionChange, adminName, mobile }
         ))}
       </nav>
 
-      {/* Footer link */}
       <div className="px-6 py-4 border-t border-black/10">
         <a
           href="/"
@@ -92,7 +104,7 @@ export default function AdminNav({ section, onSectionChange, adminName, mobile }
           rel="noopener noreferrer"
           className="text-xs text-black/40 hover:text-black transition-colors"
         >
-          ← Ver tienda
+          Ver tienda →
         </a>
       </div>
     </aside>

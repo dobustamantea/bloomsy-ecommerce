@@ -7,15 +7,23 @@ import ProductsSection from "./_components/ProductsSection";
 import OrdersSection from "./_components/OrdersSection";
 import CatalogSection from "./_components/CatalogSection";
 import SubscribersSection from "./_components/SubscribersSection";
+import DiscountsSection from "./_components/DiscountsSection";
 
-export type AdminSection = "dashboard" | "products" | "orders" | "catalog" | "subscribers";
+export type AdminSection =
+  | "dashboard"
+  | "products"
+  | "orders"
+  | "catalog"
+  | "subscribers"
+  | "discounts";
 
 const SECTION_LABELS: Record<AdminSection, string> = {
-  dashboard:   "Dashboard",
-  products:    "Productos",
-  orders:      "Pedidos",
-  catalog:      "Cat\u00E1logo",
+  dashboard: "Dashboard",
+  products: "Productos",
+  orders: "Pedidos",
+  catalog: "Catalogo",
   subscribers: "Suscriptores",
+  discounts: "Descuentos",
 };
 
 const ADMIN_NAME = "Julieta";
@@ -29,16 +37,13 @@ export default function AdminPage() {
       style={{ fontFamily: "var(--font-dm-sans, sans-serif)" }}
     >
       <div className="flex h-full">
-        {/* Desktop sidebar */}
         <AdminNav
           section={section}
           onSectionChange={setSection}
           adminName={ADMIN_NAME}
         />
 
-        {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Desktop header */}
           <header className="hidden md:flex items-center justify-between px-6 py-3.5 border-b border-black/10 bg-[#EFECDA] shrink-0">
             <div className="text-xs text-black/40">
               Admin{" "}
@@ -57,7 +62,6 @@ export default function AdminPage() {
             </a>
           </header>
 
-          {/* Mobile header (only shows store link) */}
           <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-black/10 shrink-0">
             <span
               className="text-lg font-medium"
@@ -75,18 +79,17 @@ export default function AdminPage() {
             </a>
           </header>
 
-          {/* Section content */}
           <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
-            {section === "dashboard"   && <DashboardSection />}
-            {section === "products"    && <ProductsSection />}
-            {section === "orders"      && <OrdersSection />}
-            {section === "catalog"      && <CatalogSection />}
+            {section === "dashboard" && <DashboardSection />}
+            {section === "products" && <ProductsSection />}
+            {section === "orders" && <OrdersSection />}
+            {section === "catalog" && <CatalogSection />}
             {section === "subscribers" && <SubscribersSection />}
+            {section === "discounts" && <DiscountsSection />}
           </main>
         </div>
       </div>
 
-      {/* Mobile bottom nav */}
       <AdminNav
         section={section}
         onSectionChange={setSection}
@@ -96,4 +99,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
