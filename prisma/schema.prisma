@@ -122,22 +122,20 @@ model ProductImage {
 }
 
 model Order {
-  discountCodeId String?       @map("discount_code_id")
-  discountAmount Int?
-  id            String      @id @default(cuid())
-  orderNumber   String      @unique
-  status        String      @default("pending")
-  customerName  String
-  customerEmail String
-  customerPhone String
-  shippingType  String
-  address       String?
-  city          String?
-  region        String?
-  paymentMethod String
-  subtotal      Int
-  shipping      Int
-  total         Int
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  status         String        @default("pending")
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  shippingType   String
+  address        String?
+  city           String?
+  region         String?
+  paymentMethod  String
+  subtotal       Int
+  shipping       Int
+  total          Int
   notes          String?
   discountCodeId String?       @map("discount_code_id")
   discountAmount Int?
