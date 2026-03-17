@@ -122,24 +122,27 @@ model ProductImage {
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  orderNumber   String      @unique
-  status        String      @default("pending")
-  customerName  String
-  customerEmail String
-  customerPhone String
-  shippingType  String
-  address       String?
-  city          String?
-  region        String?
-  paymentMethod String
-  subtotal      Int
-  shipping      Int
-  total         Int
-  notes         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  items         OrderItem[]
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  status         String        @default("pending")
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  shippingType   String
+  address        String?
+  city           String?
+  region         String?
+  paymentMethod  String
+  subtotal       Int
+  shipping       Int
+  total          Int
+  notes          String?
+  discountCodeId String?       @map("discount_code_id")
+  discountAmount Int?
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          OrderItem[]
 }
 
 model OrderItem {
@@ -178,4 +181,24 @@ model Size {
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model DiscountCode {
+  id             String       @id @default(cuid())
+  code           String       @unique
+  type           DiscountType
+  value          Int
+  minOrderAmount Int?
+  maxUses        Int?
+  usedCount      Int          @default(0)
+  isActive       Boolean      @default(true)
+  expiresAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  orders         Order[]
 }
