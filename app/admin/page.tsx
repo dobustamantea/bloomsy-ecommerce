@@ -5,16 +5,16 @@ import AdminNav from "./_components/AdminNav";
 import DashboardSection from "./_components/DashboardSection";
 import ProductsSection from "./_components/ProductsSection";
 import OrdersSection from "./_components/OrdersSection";
-import ColorsSection from "./_components/ColorsSection";
+import CatalogSection from "./_components/CatalogSection";
 import SubscribersSection from "./_components/SubscribersSection";
 
-export type AdminSection = "dashboard" | "products" | "orders" | "colors" | "subscribers";
+export type AdminSection = "dashboard" | "products" | "orders" | "catalog" | "subscribers";
 
 const SECTION_LABELS: Record<AdminSection, string> = {
   dashboard:   "Dashboard",
   products:    "Productos",
   orders:      "Pedidos",
-  colors:      "Colores",
+  catalog:      "Cat\u00E1logo",
   subscribers: "Suscriptores",
 };
 
@@ -80,7 +80,7 @@ export default function AdminPage() {
             {section === "dashboard"   && <DashboardSection />}
             {section === "products"    && <ProductsSection />}
             {section === "orders"      && <OrdersSection />}
-            {section === "colors"      && <ColorsSection />}
+            {section === "catalog"      && <CatalogSection />}
             {section === "subscribers" && <SubscribersSection />}
           </main>
         </div>
@@ -96,3 +96,4 @@ export default function AdminPage() {
     </div>
   );
 }
+
