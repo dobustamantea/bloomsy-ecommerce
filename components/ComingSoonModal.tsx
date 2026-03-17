@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Instagram, Mail } from "lucide-react";
+import Image from "next/image";
 
 const LS_KEY = "bloomsy_modal_seen";
 
@@ -87,9 +88,14 @@ export default function ComingSoonModal() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="flex max-h-[90vh] w-full max-w-[520px] flex-col items-center overflow-y-auto rounded-[4px] bg-bloomsy-cream px-7 py-10 text-center md:px-10 md:py-12"
           >
-            <p className="select-none font-display text-[22px] uppercase tracking-[0.18em] text-bloomsy-black md:text-[24px]">
-              Bloomsy
-            </p>
+            <Image
+              src="https://ikuacwkjcheyjlitfvit.supabase.co/storage/v1/object/public/product-images/assets/Bloomsy%20SoloW.png"
+              alt="Bloomsy"
+              width={320}
+              height={96}
+              className="h-6 w-auto object-contain select-none"
+              priority
+            />
 
             <div className="mt-4 mb-5 h-px w-10 bg-bloomsy-black" />
 
