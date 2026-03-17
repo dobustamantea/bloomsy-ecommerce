@@ -13,7 +13,7 @@ const NAV_ITEMS: { key: AdminSection; label: string; icon: React.ElementType }[]
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "products", label: "Productos", icon: Package },
   { key: "orders", label: "Pedidos", icon: ShoppingBag },
-  { key: "catalog", label: "Catálogo", icon: Palette },
+  { key: "catalog", label: "Cat\u00E1logo", icon: Palette },
   { key: "subscribers", label: "Suscriptores", icon: Mail },
 ];
 

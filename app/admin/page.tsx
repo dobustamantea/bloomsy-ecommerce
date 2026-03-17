@@ -14,7 +14,7 @@ const SECTION_LABELS: Record<AdminSection, string> = {
   dashboard:   "Dashboard",
   products:    "Productos",
   orders:      "Pedidos",
-  catalog:      "Catálogo",
+  catalog:      "Cat\u00E1logo",
   subscribers: "Suscriptores",
 };
 
