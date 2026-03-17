@@ -191,7 +191,7 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse bg-black/10 ${className}`} />;
 }
 
-// ── Types (colors) ────────────────────────────────────────────────────────────
+// ── Types (colors + sizes) ───────────────────────────────────────────────────
 
 interface ColorOption {
   id: string;
@@ -199,11 +199,18 @@ interface ColorOption {
   hex: string;
 }
 
+interface SizeOption {
+  id: string;
+  name: string;
+  sortOrder: number;
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function ProductsSection() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [colors, setColors] = useState<ColorOption[]>([]);
+  const [sizes, setSizes] = useState<SizeOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -220,9 +227,11 @@ export default function ProductsSection() {
     Promise.all([
       fetch("/api/admin/products").then((r) => r.json()),
       fetch("/api/admin/colors").then((r) => r.json()),
-    ]).then(([prods, cols]) => {
+      fetch("/api/admin/sizes").then((r) => r.json()),
+    ]).then(([prods, cols, szs]) => {
       setProducts(prods);
       if (Array.isArray(cols)) setColors(cols);
+      if (Array.isArray(szs)) setSizes(szs);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -663,10 +672,13 @@ export default function ProductsSection() {
                   <span />
                 </div>
 
-                {colors.length === 0 && (
+                {(sizes.length === 0 || colors.length === 0) && (
                   <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-2">
-                    No hay colores registrados. Crea colores en la sección{" "}
-                    <strong>Colores</strong> primero.
+                    {sizes.length === 0 && colors.length === 0
+                      ? "Crea tallas y colores en la sección Catálogo primero."
+                      : sizes.length === 0
+                      ? "Crea tallas en la sección Catálogo primero."
+                      : "Crea colores en la sección Catálogo primero."}
                   </p>
                 )}
 
@@ -676,17 +688,20 @@ export default function ProductsSection() {
                     className="grid grid-cols-[1fr_1fr_4rem_1.5rem] gap-1 items-center"
                   >
                     {/* Talla */}
-                    <input
-                      type="text"
+                    <select
                       value={v.size}
                       onChange={(e) => {
                         const vs = [...form.variants];
                         vs[i] = { ...vs[i], size: e.target.value };
                         updateForm("variants", vs);
                       }}
-                      placeholder="S"
-                      className="border border-black/20 px-2 py-1.5 text-xs focus:outline-none focus:border-black"
-                    />
+                      className="border border-black/20 px-2 py-1.5 text-xs focus:outline-none focus:border-black bg-transparent"
+                    >
+                      <option value="">— Talla —</option>
+                      {sizes.map((s) => (
+                        <option key={s.id} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
 
                     {/* Color select */}
                     <div className="flex gap-1 items-center min-w-0">
