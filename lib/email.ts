@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import WelcomeEmail from "@/emails/WelcomeEmail";
 import OrderConfirmationEmail from "@/emails/OrderConfirmationEmail";
 import OrderDispatchedEmail from "@/emails/OrderDispatchedEmail";
+import OrderReadyForPickupEmail from "@/emails/OrderReadyForPickupEmail";
 import PasswordResetEmail from "@/emails/PasswordResetEmail";
 import NewsletterWelcomeEmail from "@/emails/NewsletterWelcomeEmail";
 
@@ -124,6 +125,24 @@ export async function sendOrderDispatchedEmail(
   await sendEmail({
     to: email,
     subject: `Tu pedido ${order.orderNumber} está en camino 🚚`,
+    html,
+  });
+}
+
+export async function sendOrderReadyForPickupEmail(
+  email: string,
+  order: Pick<OrderEmailData, "customerName" | "orderNumber">
+): Promise<void> {
+  const html = await render(
+    OrderReadyForPickupEmail({
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      logoUrl: LOGO_URL,
+    })
+  );
+  await sendEmail({
+    to: email,
+    subject: `Tu pedido ${order.orderNumber} está listo para retiro 🛍️`,
     html,
   });
 }

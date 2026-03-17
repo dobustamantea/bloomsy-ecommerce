@@ -83,6 +83,17 @@ function filterOrders(orders: Order[], tab: string) {
   return orders;
 }
 
+function isPickup(shippingType: string) {
+  return shippingType === "pickup" || shippingType?.toLowerCase().includes("retiro");
+}
+
+function getStatusConfig(order: Order) {
+  if (order.status === "shipped" && isPickup(order.shippingType)) {
+    return { label: "Listo para retiro", className: "bg-blue-100 text-blue-700" };
+  }
+  return STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function OrdersSection() {
@@ -91,6 +102,8 @@ export default function OrdersSection() {
   const [activeTab, setActiveTab] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [trackingInputId, setTrackingInputId] = useState<string | null>(null);
+  const [trackingValue, setTrackingValue] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/orders")
@@ -99,19 +112,17 @@ export default function OrdersSection() {
       .catch(() => setLoading(false));
   }, []);
 
-  async function updateStatus(orderId: string, newStatus: string) {
-    setUpdatingId(orderId);
-    const res = await fetch(`/api/admin/orders/${orderId}`, {
+  async function updateStatus(id: string, status: string, trackingNumber?: string) {
+    setUpdatingId(id);
+    await fetch(`/api/admin/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status, ...(trackingNumber ? { trackingNumber } : {}) }),
     });
-    if (res.ok) {
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-      );
-    }
+    setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
     setUpdatingId(null);
+    setTrackingInputId(null);
+    setTrackingValue("");
   }
 
   function exportCSV() {
@@ -185,7 +196,7 @@ export default function OrdersSection() {
       ) : (
         <div className="space-y-2">
           {filtered.map((order) => {
-            const sc = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
+            const sc = getStatusConfig(order);
             const isExpanded = expandedId === order.id;
             const currentIdx = STATUS_FLOW.indexOf(order.status);
             const nextStatus =
@@ -281,7 +292,7 @@ export default function OrdersSection() {
                             ← {STATUS_CONFIG[prevStatus]?.label}
                           </button>
                         )}
-                        {nextStatus && (
+                        {nextStatus && nextStatus !== "shipped" && (
                           <button
                             onClick={() => updateStatus(order.id, nextStatus)}
                             disabled={updatingId === order.id}
@@ -289,6 +300,49 @@ export default function OrdersSection() {
                           >
                             {STATUS_CONFIG[nextStatus]?.label} →
                           </button>
+                        )}
+                        {nextStatus === "shipped" && isPickup(order.shippingType) && (
+                          <button
+                            onClick={() => updateStatus(order.id, "shipped")}
+                            disabled={updatingId === order.id}
+                            className="flex-1 text-xs bg-black text-white py-2 hover:bg-black/80 transition-colors disabled:opacity-40 whitespace-nowrap"
+                          >
+                            Listo para retiro →
+                          </button>
+                        )}
+                        {nextStatus === "shipped" && !isPickup(order.shippingType) && (
+                          trackingInputId === order.id ? (
+                            <div className="flex-1 flex gap-2 items-center">
+                              <input
+                                type="text"
+                                placeholder="Número de seguimiento Starken"
+                                value={trackingValue}
+                                onChange={(e) => setTrackingValue(e.target.value)}
+                                className="flex-1 text-xs border border-black/30 px-2 py-2 outline-none focus:border-black"
+                              />
+                              <button
+                                onClick={() => updateStatus(order.id, "shipped", trackingValue || undefined)}
+                                disabled={updatingId === order.id}
+                                className="text-xs bg-black text-white px-3 py-2 hover:bg-black/80 transition-colors disabled:opacity-40 whitespace-nowrap"
+                              >
+                                Confirmar
+                              </button>
+                              <button
+                                onClick={() => { setTrackingInputId(null); setTrackingValue(""); }}
+                                className="text-xs border border-black/20 px-2 py-2 hover:border-black transition-colors whitespace-nowrap"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => { setTrackingInputId(order.id); setTrackingValue(""); }}
+                              disabled={updatingId === order.id}
+                              className="flex-1 text-xs bg-black text-white py-2 hover:bg-black/80 transition-colors disabled:opacity-40 whitespace-nowrap"
+                            >
+                              En envío →
+                            </button>
+                          )
                         )}
                         <button
                           onClick={() => {
