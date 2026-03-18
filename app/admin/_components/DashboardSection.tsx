@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Package, ShoppingBag, Mail, AlertTriangle, TrendingUp } from "lucide-react";
+import { Package, ShoppingBag, Mail, AlertTriangle, TrendingUp, Truck, CalendarDays } from "lucide-react";
 
 interface DashboardData {
   totalProducts: number;
   pendingOrders: number;
+  toDispatchOrders: number;
+  shippedOrders: number;
+  todayOrders: number;
   subscribers: number;
   totalRevenue: number;
   lowStockProducts: number;
@@ -36,19 +39,35 @@ export default function DashboardSection() {
   const cards = data
     ? [
         {
-          label: "Productos activos",
-          value: String(data.totalProducts),
-          icon: Package,
+          label: "Pedidos hoy",
+          value: String(data.todayOrders),
+          icon: CalendarDays,
           alert: false,
           alertColor: "",
           wide: false,
         },
         {
-          label: "Pedidos pendientes",
+          label: "Pendientes de pago",
           value: String(data.pendingOrders),
           icon: ShoppingBag,
           alert: data.pendingOrders > 0,
           alertColor: "text-orange-600",
+          wide: false,
+        },
+        {
+          label: "Por despachar",
+          value: String(data.toDispatchOrders),
+          icon: Package,
+          alert: data.toDispatchOrders > 0,
+          alertColor: "text-yellow-600",
+          wide: false,
+        },
+        {
+          label: "En camino",
+          value: String(data.shippedOrders),
+          icon: Truck,
+          alert: false,
+          alertColor: "",
           wide: false,
         },
         {
@@ -89,7 +108,7 @@ export default function DashboardSection() {
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {[...Array(5)].map((_, i) => (
+          {[...Array(7)].map((_, i) => (
             <Skeleton key={i} className="h-24" />
           ))}
         </div>
