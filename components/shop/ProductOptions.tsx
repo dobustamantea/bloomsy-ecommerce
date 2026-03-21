@@ -32,6 +32,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
   const [added, setAdded] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
+  const cartItems = useCartStore((s) => s.items);
   const toggle = useWishlistStore((s) => s.toggle);
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
 
@@ -44,7 +45,20 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
     ? getStock(product, selectedColor.name, selectedSize)
     : null;
 
-  const canAddToCart = selectedSize !== null && (selectedStock ?? 0) > 0;
+  // Cantidad ya en el carrito para esta variante
+  const cartQuantity = selectedSize
+    ? (cartItems.find(
+        (item) =>
+          item.product.id === product.id &&
+          item.size === selectedSize &&
+          item.color.name === selectedColor.name
+      )?.quantity ?? 0)
+    : 0;
+
+  const canAddToCart =
+    selectedSize !== null &&
+    (selectedStock ?? 0) > 0 &&
+    cartQuantity < (selectedStock ?? 0);
 
   function handleColorChange(color: typeof selectedColor) {
     setSelectedColor(color);

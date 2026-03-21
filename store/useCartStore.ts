@@ -18,6 +18,12 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
 
   addItem: (product, size, color) => {
+    const variant = product.variants.find(
+      (v) => v.color === color.name && v.size === size
+    );
+    const stock =
+      product.variants.length === 0 ? Infinity : (variant?.stock ?? 0);
+
     const existing = get().items.find(
       (item) =>
         item.product.id === product.id &&
@@ -25,6 +31,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         item.color.name === color.name
     );
     if (existing) {
+      if (existing.quantity >= stock) return;
       set({
         items: get().items.map((item) =>
           item.product.id === product.id &&
@@ -35,6 +42,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         ),
       });
     } else {
+      if (stock <= 0) return;
       set({ items: [...get().items, { product, size, color, quantity: 1 }] });
     }
   },
